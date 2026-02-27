@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-02-27T21:38:59.141Z"
+status: in_progress
+last_updated: "2026-02-27T22:39:00Z"
 progress:
-  total_phases: 1
+  total_phases: 6
   completed_phases: 1
   total_plans: 3
-  completed_plans: 3
+  completed_plans: 4
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** Phase 1 — Infrastructure
+**Current focus:** Phase 2 — App Shell Navigation
 
 ## Current Position
 
-Phase: 1 of 6 (Infrastructure)
-Plan: 3 of 3 in current phase (COMPLETE)
-Status: Phase 1 complete — ready for Phase 2
-Last activity: 2026-02-27 — Plan 03 executed: Deploy to Vercel, push schema to Supabase, configure Clerk third-party auth
+Phase: 2 of 6 (App Shell Navigation)
+Plan: 1 of N in current phase (COMPLETE)
+Status: Phase 2 Plan 01 complete — app shell foundation built
+Last activity: 2026-02-27 — Plan 02-01 executed: Dark mode theme system, sticky header, breadcrumb navigation, and UI component library
 
-Progress: [███░░░░░░░] 17%
+Progress: [████░░░░░░] 22%
 
 ## Performance Metrics
 
@@ -41,6 +41,7 @@ Progress: [███░░░░░░░] 17%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-infrastructure | 3 | 41 min | 13.7 min |
+| 02-app-shell-navigation | 1 | 12 min | 12 min |
 
 **Recent Trend:**
 - Last 5 plans: 8 min, 3 min, 30 min
@@ -69,6 +70,11 @@ Recent decisions affecting current work:
 - [01-03]: Clerk JWT third-party auth configured in Supabase with domain great-longhorn-58.clerk.accounts.dev — RLS uses JWT sub claim via current_setting
 - [01-03]: HARDCODED_USER_ID updated to real Clerk user ID user_3AGlLR1a07HdOR8G8mECoqPUUfd — single-user Phase 1 credential live in production
 - [01-03]: Production Vercel URL https://learning-platform-three-omega.vercel.app — all 5 env vars set, schema migration applied
+- [02-01]: Tailwind v4 uses @custom-variant dark (class strategy) not tailwind.config.js — integrates with next-themes attribute="class"
+- [02-01]: Dark-first design: @theme block sets dark palette as default; .light class overrides — no dark: prefix needed on surface classes
+- [02-01]: ThemeProvider placed inside body (not wrapping html) to avoid hydration issues with ClerkProvider
+- [02-01]: Header is server component; ThemeToggle and MobileMenu are client components — minimizes client JS bundle
+- [02-01]: Breadcrumbs receives pre-computed BreadcrumbItem[] from parent pages — presentational only, pages control labels resolved from DB slugs
 
 ### Pending Todos
 
@@ -86,5 +92,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 01-03-PLAN.md — Deploy to Vercel, push schema to Supabase, configure Clerk third-party auth. Phase 1 complete.
+Stopped at: Completed 02-01-PLAN.md — Dark mode theme system, sticky header with breadcrumbs, and full UI component library (PillarCard, ProgressBar, LoadingSkeleton). Phase 2 Plan 01 complete.
 Resume file: None

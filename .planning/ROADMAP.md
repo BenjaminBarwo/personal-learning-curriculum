@@ -119,7 +119,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete | 2026-02-27 |
-| 2. App Shell + Navigation | 0/2 | Planned | - |
+| 2. App Shell + Navigation | 1/2 | In Progress|  |
 | 3. Lesson Content Pipeline | 0/TBD | Not started | - |
 | 4. Quiz Engine | 0/TBD | Not started | - |
 | 5. Progress + Dashboard | 0/TBD | Not started | - |

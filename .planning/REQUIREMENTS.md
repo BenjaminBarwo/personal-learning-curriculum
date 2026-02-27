@@ -11,7 +11,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [ ] **NAV-01**: User can view dashboard with pillar overview and "continue where you left off"
 - [ ] **NAV-02**: User can navigate Pillar → Semester → Course → Lesson hierarchy
-- [ ] **NAV-03**: User can see breadcrumb trail showing current location in hierarchy
+- [x] **NAV-03**: User can see breadcrumb trail showing current location in hierarchy
 
 ### Lesson Content
 
@@ -41,8 +41,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Design
 
-- [ ] **DESG-01**: Dark mode as primary display mode, light mode supported
-- [ ] **DESG-02**: Mobile-responsive layout across all pages
+- [x] **DESG-01**: Dark mode as primary display mode, light mode supported
+- [x] **DESG-02**: Mobile-responsive layout across all pages
 
 ### Seed Content
 
@@ -104,7 +104,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | NAV-01 | Phase 2 | Pending |
 | NAV-02 | Phase 2 | Pending |
-| NAV-03 | Phase 2 | Pending |
+| NAV-03 | Phase 2 | Complete |
 | CONT-01 | Phase 3 | Pending |
 | CONT-02 | Phase 3 | Pending |
 | CONT-03 | Phase 3 | Pending |
@@ -119,8 +119,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFR-01 | Phase 1 | Pending |
 | INFR-02 | Phase 1 | Pending |
 | INFR-03 | Phase 1 | Complete (01-03) |
-| DESG-01 | Phase 2 | Pending |
-| DESG-02 | Phase 2 | Pending |
+| DESG-01 | Phase 2 | Complete |
+| DESG-02 | Phase 2 | Complete |
 | SEED-01 | Phase 6 | Pending |
 | SEED-02 | Phase 6 | Pending |
 
