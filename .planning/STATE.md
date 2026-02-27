@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-02-27T22:39:00Z"
+status: unknown
+last_updated: "2026-02-27T22:38:49.589Z"
 progress:
-  total_phases: 6
-  completed_phases: 1
-  total_plans: 3
-  completed_plans: 4
+  total_phases: 2
+  completed_phases: 2
+  total_plans: 5
+  completed_plans: 5
 ---
 
 # Project State
@@ -75,6 +75,9 @@ Recent decisions affecting current work:
 - [02-01]: ThemeProvider placed inside body (not wrapping html) to avoid hydration issues with ClerkProvider
 - [02-01]: Header is server component; ThemeToggle and MobileMenu are client components — minimizes client JS bundle
 - [02-01]: Breadcrumbs receives pre-computed BreadcrumbItem[] from parent pages — presentational only, pages control labels resolved from DB slugs
+- [Phase 02]: BreadcrumbContext over per-page Header: single Header in root layout reads from context; BreadcrumbSetter in each page pushes state; no prop-drilling through layouts
+- [Phase 02]: Supabase view query type cast pattern: (data ?? []) as ActiveX[] — view queries return {}[] inference in strict TypeScript, explicit cast required
+- [Phase 02]: await params in all Next.js 15/16 dynamic routes — params is a Promise; must await before accessing slug properties
 
 ### Pending Todos
 
