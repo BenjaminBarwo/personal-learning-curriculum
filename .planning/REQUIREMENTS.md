@@ -9,8 +9,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Navigation
 
-- [ ] **NAV-01**: User can view dashboard with pillar overview and "continue where you left off"
-- [ ] **NAV-02**: User can navigate Pillar → Semester → Course → Lesson hierarchy
+- [x] **NAV-01**: User can view dashboard with pillar overview and "continue where you left off"
+- [x] **NAV-02**: User can navigate Pillar → Semester → Course → Lesson hierarchy
 - [x] **NAV-03**: User can see breadcrumb trail showing current location in hierarchy
 
 ### Lesson Content
@@ -102,8 +102,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | Phase 2 | Pending |
-| NAV-02 | Phase 2 | Pending |
+| NAV-01 | Phase 2 | Complete |
+| NAV-02 | Phase 2 | Complete |
 | NAV-03 | Phase 2 | Complete |
 | CONT-01 | Phase 3 | Pending |
 | CONT-02 | Phase 3 | Pending |

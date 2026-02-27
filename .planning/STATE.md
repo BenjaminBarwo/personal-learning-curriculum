@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 2 of 6 (App Shell Navigation)
-Plan: 1 of N in current phase (COMPLETE)
-Status: Phase 2 Plan 01 complete — app shell foundation built
-Last activity: 2026-02-27 — Plan 02-01 executed: Dark mode theme system, sticky header, breadcrumb navigation, and UI component library
+Plan: 2 of 2 in current phase (COMPLETE)
+Status: Phase 2 complete — app shell navigation fully built and verified
+Last activity: 2026-02-27 — Plan 02-02 executed: Five hierarchy pages (Dashboard to Lesson stub), BreadcrumbContext wiring, pillar color accent threading, and human-verify checkpoint approved
 
-Progress: [████░░░░░░] 22%
+Progress: [█████░░░░░] 33%
 
 ## Performance Metrics
 
@@ -41,7 +41,7 @@ Progress: [████░░░░░░] 22%
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
 | 01-infrastructure | 3 | 41 min | 13.7 min |
-| 02-app-shell-navigation | 1 | 12 min | 12 min |
+| 02-app-shell-navigation | 2 | 15 min | 7.5 min |
 
 **Recent Trend:**
 - Last 5 plans: 8 min, 3 min, 30 min
@@ -78,6 +78,9 @@ Recent decisions affecting current work:
 - [Phase 02]: BreadcrumbContext over per-page Header: single Header in root layout reads from context; BreadcrumbSetter in each page pushes state; no prop-drilling through layouts
 - [Phase 02]: Supabase view query type cast pattern: (data ?? []) as ActiveX[] — view queries return {}[] inference in strict TypeScript, explicit cast required
 - [Phase 02]: await params in all Next.js 15/16 dynamic routes — params is a Promise; must await before accessing slug properties
+- [02-02]: Sequential hierarchy fetching chosen: fetch parent by slug first to get UUID, then fetch children by parent_id — validates URL integrity at each level
+- [02-02]: CSS variable --pillar-color on main element for dynamic hex accent threading — avoids Tailwind arbitrary value issues with runtime DB colors
+- [02-02]: Mock lessonCount: 0 and progress: 0 on PillarCard/ProgressBar — Phase 5 replaces with real Supabase aggregation; no component changes needed
 
 ### Pending Todos
 
@@ -95,5 +98,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-27
-Stopped at: Completed 02-01-PLAN.md — Dark mode theme system, sticky header with breadcrumbs, and full UI component library (PillarCard, ProgressBar, LoadingSkeleton). Phase 2 Plan 01 complete.
+Stopped at: Completed 02-02-PLAN.md — Five hierarchy pages with BreadcrumbContext, real Supabase data fetching, pillar color accent threading, and full navigation flow verified. Phase 2 complete.
 Resume file: None
