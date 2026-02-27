@@ -48,10 +48,11 @@ Plans:
   3. Every page renders correctly in dark mode (primary) and light mode (toggled)
   4. Every page is usable on a mobile screen (no horizontal scroll, tap targets adequate)
   5. Completion indicators are visible at every level of the navigation hierarchy (pillar, semester, course)
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
+- [ ] 02-01-PLAN.md — Theme system, layout shell (header, breadcrumbs, theme toggle), reusable UI components (PillarCard, ProgressBar, LoadingSkeleton)
+- [ ] 02-02-PLAN.md — Dashboard page, Pillar/Semester/Course/Lesson hierarchy pages with Supabase data fetching, breadcrumb wiring, visual verification
 
 ### Phase 3: Lesson Content Pipeline
 **Goal**: A lesson page renders rich MDX content with all custom components functional and content versioning in place
@@ -118,7 +119,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete | 2026-02-27 |
-| 2. App Shell + Navigation | 0/TBD | Not started | - |
+| 2. App Shell + Navigation | 0/2 | Planned | - |
 | 3. Lesson Content Pipeline | 0/TBD | Not started | - |
 | 4. Quiz Engine | 0/TBD | Not started | - |
 | 5. Progress + Dashboard | 0/TBD | Not started | - |
