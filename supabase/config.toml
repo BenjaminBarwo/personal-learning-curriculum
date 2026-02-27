@@ -340,7 +340,7 @@ enabled = false
 enabled = true
 # Obtain from https://clerk.com/setup/supabase
 # Replace with your actual Clerk domain from Clerk Dashboard -> API Keys -> Frontend API URL
-domain = "example.clerk.accounts.dev"
+domain = "great-longhorn-58.clerk.accounts.dev"
 
 # OAuth server configuration
 [auth.oauth_server]
