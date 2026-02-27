@@ -31,10 +31,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. The Clerk JWT template for Supabase is configured; `SELECT auth.uid()` returns a non-null value for an authenticated user
   4. The application deploys to Vercel without build errors and environment variables are set in production
   5. All tables include `user_id` with a hardcoded single user constant (Clerk user ID string); no Supabase Auth user table needed
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: TBD
+- [ ] 01-01-PLAN.md — Next.js scaffolding, dependencies, Clerk middleware, Supabase client factories
+- [ ] 01-02-PLAN.md — Complete database schema migration (11 tables, RLS, indexes, triggers, views, types)
+- [ ] 01-03-PLAN.md — Vercel deployment, Supabase schema push, Clerk third-party auth configuration
 
 ### Phase 2: App Shell + Navigation
 **Goal**: The learner can navigate the full Pillar → Semester → Course → Lesson hierarchy in a polished, mobile-responsive shell
@@ -115,7 +117,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 0/TBD | Not started | - |
+| 1. Infrastructure | 0/3 | Planned | - |
 | 2. App Shell + Navigation | 0/TBD | Not started | - |
 | 3. Lesson Content Pipeline | 0/TBD | Not started | - |
 | 4. Quiz Engine | 0/TBD | Not started | - |
