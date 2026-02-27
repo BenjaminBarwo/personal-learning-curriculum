@@ -35,8 +35,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFR-01**: Data model includes user_id on all tables with hardcoded single user (Clerk-ready scaffolding for later)
-- [ ] **INFR-02**: Supabase database with core schema (pillars, semesters, courses, lessons, progress, quiz_questions, vocabulary, lesson_versions)
+- [x] **INFR-01**: Data model includes user_id on all tables with hardcoded single user (Clerk-ready scaffolding for later) — completed 01-02
+- [x] **INFR-02**: Supabase database with core schema (pillars, semesters, courses, lessons, progress, quiz_questions, vocabulary, lesson_versions, quiz_attempts, lesson_connections) — completed 01-02
 - [ ] **INFR-03**: Deployed to Vercel *(scaffold complete in 01-01; full deployment in 01-03)*
 
 ### Design

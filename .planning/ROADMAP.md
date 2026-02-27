@@ -35,7 +35,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 Plans:
 - [x] 01-01-PLAN.md — Next.js scaffolding, dependencies, Clerk middleware, Supabase client factories
-- [ ] 01-02-PLAN.md — Complete database schema migration (11 tables, RLS, indexes, triggers, views, types)
+- [x] 01-02-PLAN.md — Complete database schema migration (11 tables, RLS, indexes, triggers, views, types)
 - [ ] 01-03-PLAN.md — Vercel deployment, Supabase schema push, Clerk third-party auth configuration
 
 ### Phase 2: App Shell + Navigation
@@ -117,7 +117,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 1/3 | In Progress|  |
+| 1. Infrastructure | 2/3 | In Progress|  |
 | 2. App Shell + Navigation | 0/TBD | Not started | - |
 | 3. Lesson Content Pipeline | 0/TBD | Not started | - |
 | 4. Quiz Engine | 0/TBD | Not started | - |
