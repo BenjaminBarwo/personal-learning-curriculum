@@ -102,33 +102,33 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | TBD | Pending |
-| NAV-02 | TBD | Pending |
-| NAV-03 | TBD | Pending |
-| CONT-01 | TBD | Pending |
-| CONT-02 | TBD | Pending |
-| CONT-03 | TBD | Pending |
-| CONT-04 | TBD | Pending |
-| CONT-05 | TBD | Pending |
-| QUIZ-01 | TBD | Pending |
-| QUIZ-02 | TBD | Pending |
-| QUIZ-03 | TBD | Pending |
-| PROG-01 | TBD | Pending |
-| PROG-02 | TBD | Pending |
-| PROG-03 | TBD | Pending |
-| INFR-01 | TBD | Pending |
-| INFR-02 | TBD | Pending |
-| INFR-03 | TBD | Pending |
-| DESG-01 | TBD | Pending |
-| DESG-02 | TBD | Pending |
-| SEED-01 | TBD | Pending |
-| SEED-02 | TBD | Pending |
+| NAV-01 | Phase 2 | Pending |
+| NAV-02 | Phase 2 | Pending |
+| NAV-03 | Phase 2 | Pending |
+| CONT-01 | Phase 3 | Pending |
+| CONT-02 | Phase 3 | Pending |
+| CONT-03 | Phase 3 | Pending |
+| CONT-04 | Phase 3 | Pending |
+| CONT-05 | Phase 3 | Pending |
+| QUIZ-01 | Phase 4 | Pending |
+| QUIZ-02 | Phase 4 | Pending |
+| QUIZ-03 | Phase 4 | Pending |
+| PROG-01 | Phase 5 | Pending |
+| PROG-02 | Phase 5 | Pending |
+| PROG-03 | Phase 5 | Pending |
+| INFR-01 | Phase 1 | Pending |
+| INFR-02 | Phase 1 | Pending |
+| INFR-03 | Phase 1 | Pending |
+| DESG-01 | Phase 2 | Pending |
+| DESG-02 | Phase 2 | Pending |
+| SEED-01 | Phase 6 | Pending |
+| SEED-02 | Phase 6 | Pending |
 
 **Coverage:**
 - v1 requirements: 21 total
-- Mapped to phases: 0
-- Unmapped: 21 ⚠️
+- Mapped to phases: 21
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-02-27 after initial definition*
+*Last updated: 2026-02-27 after roadmap creation — all 21 requirements mapped*
