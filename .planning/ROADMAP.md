@@ -12,7 +12,7 @@ Six phases from bare repository to a live, authenticated learning platform. The 
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Infrastructure** - Database schema, Supabase, Vercel deployment, single-user scaffolding
+- [x] **Phase 1: Infrastructure** - Database schema, Supabase, Vercel deployment, single-user scaffolding
 - [ ] **Phase 2: App Shell + Navigation** - Layout, routing, pillar color system, breadcrumbs, dark mode, mobile
 - [ ] **Phase 3: Lesson Content Pipeline** - MDX rendering, all display and interactive components, content versioning
 - [ ] **Phase 4: Quiz Engine** - Quiz rendering, all question types, attempt persistence
@@ -36,7 +36,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 Plans:
 - [x] 01-01-PLAN.md — Next.js scaffolding, dependencies, Clerk middleware, Supabase client factories
 - [x] 01-02-PLAN.md — Complete database schema migration (11 tables, RLS, indexes, triggers, views, types)
-- [ ] 01-03-PLAN.md — Vercel deployment, Supabase schema push, Clerk third-party auth configuration
+- [x] 01-03-PLAN.md — Vercel deployment, Supabase schema push, Clerk third-party auth configuration
 
 ### Phase 2: App Shell + Navigation
 **Goal**: The learner can navigate the full Pillar → Semester → Course → Lesson hierarchy in a polished, mobile-responsive shell
@@ -117,7 +117,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Infrastructure | 2/3 | In Progress|  |
+| 1. Infrastructure | 3/3 | Complete | 2026-02-27 |
 | 2. App Shell + Navigation | 0/TBD | Not started | - |
 | 3. Lesson Content Pipeline | 0/TBD | Not started | - |
 | 4. Quiz Engine | 0/TBD | Not started | - |

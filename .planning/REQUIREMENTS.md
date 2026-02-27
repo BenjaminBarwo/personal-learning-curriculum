@@ -37,7 +37,7 @@ Requirements for initial release. Each maps to roadmap phases.
 
 - [x] **INFR-01**: Data model includes user_id on all tables with hardcoded single user (Clerk-ready scaffolding for later) — completed 01-02
 - [x] **INFR-02**: Supabase database with core schema (pillars, semesters, courses, lessons, progress, quiz_questions, vocabulary, lesson_versions, quiz_attempts, lesson_connections) — completed 01-02
-- [ ] **INFR-03**: Deployed to Vercel *(scaffold complete in 01-01; full deployment in 01-03)*
+- [x] **INFR-03**: Deployed to Vercel *(scaffold complete in 01-01; full deployment in 01-03)* — completed 01-03
 
 ### Design
 
@@ -118,7 +118,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | PROG-03 | Phase 5 | Pending |
 | INFR-01 | Phase 1 | Pending |
 | INFR-02 | Phase 1 | Pending |
-| INFR-03 | Phase 1 | In progress (01-01 scaffold done; deployment in 01-03) |
+| INFR-03 | Phase 1 | Complete (01-03) |
 | DESG-01 | Phase 2 | Pending |
 | DESG-02 | Phase 2 | Pending |
 | SEED-01 | Phase 6 | Pending |
@@ -131,4 +131,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-02-27*
-*Last updated: 2026-02-27 after 01-01 execution — INFR-03 in progress (scaffold built)*
+*Last updated: 2026-02-27 after 01-03 execution — INFR-03 complete (Vercel deployed, Supabase schema pushed, Clerk configured). Phase 1 all requirements complete.*
