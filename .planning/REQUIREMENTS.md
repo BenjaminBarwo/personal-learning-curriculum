@@ -18,7 +18,7 @@ Requirements for initial release. Each maps to roadmap phases.
 - [x] **CONT-01**: User can view lessons rendered from MDX with custom components (Hook, ConceptBlock, DeepDive, Exercise, Takeaways)
 - [x] **CONT-02**: User can expand/collapse DeepDive sections within lessons
 - [x] **CONT-03**: User can hover/tap domain terminology to see inline definitions via Definition component
-- [ ] **CONT-04**: Lesson content is versioned with rollback capability (content_version + lesson_versions table)
+- [x] **CONT-04**: Lesson content is versioned with rollback capability (content_version + lesson_versions table)
 - [x] **CONT-05**: User can view Mermaid diagrams rendered inline via Diagram component
 
 ### Quizzes
@@ -108,7 +108,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-01 | Phase 3 | Complete |
 | CONT-02 | Phase 3 | Complete |
 | CONT-03 | Phase 3 | Complete |
-| CONT-04 | Phase 3 | Pending |
+| CONT-04 | Phase 3 | Complete |
 | CONT-05 | Phase 3 | Complete |
 | QUIZ-01 | Phase 4 | Pending |
 | QUIZ-02 | Phase 4 | Pending |

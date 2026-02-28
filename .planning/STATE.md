@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-02-28T00:54:55Z"
+last_updated: "2026-02-28T01:01:00Z"
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 7
-  completed_plans: 6
+  completed_plans: 7
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 3 of 6 (Lesson Content Pipeline)
-Plan: 1 of 2 in current phase (COMPLETE)
-Status: Plan 03-01 complete — MDX component library and dependencies built
-Last activity: 2026-02-28 — Plan 03-01 executed: 8 custom MDX lesson components, DeepDive/Definition contexts, Mermaid diagram renderer, MDX components map, Tailwind Typography configured
+Plan: 2 of 2 in current phase (AWAITING CHECKPOINT — human-verify Task 3)
+Status: Plan 03-02 complete (2 tasks) — awaiting human verification checkpoint; MDX rendering integrated, content versioning trigger deployed
+Last activity: 2026-02-28 — Plan 03-02 executed: MDXRemote integrated into lesson page, LessonBody/LessonNavigation/MarkCompleteButton created, content versioning trigger deployed
 
-Progress: [████████░░] 75%
+Progress: [█████████░] 87%
 
 ## Performance Metrics
 
@@ -42,10 +42,10 @@ Progress: [████████░░] 75%
 |-------|-------|-------|----------|
 | 01-infrastructure | 3 | 41 min | 13.7 min |
 | 02-app-shell-navigation | 2 | 15 min | 7.5 min |
-| 03-lesson-content-pipeline | 1 | 4 min | 4 min |
+| 03-lesson-content-pipeline | 2 | 6 min | 3 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min, 3 min, 30 min, 4 min
+- Last 5 plans: 3 min, 30 min, 4 min, 2 min
 - Trend: Variable (30 min includes human-action checkpoint)
 
 *Updated after each plan completion*
@@ -86,6 +86,10 @@ Recent decisions affecting current work:
 - [03-01]: shiki pinned to ^3.23.0 — v4.0.0 not yet in rehype-pretty-code@0.14.1 peer range (^1||^2||^3)
 - [03-01]: DeepDiveProvider and DefinitionProvider exported from component files and barrel index.ts; Plan 03-02 wraps MDX output with both providers
 - [03-01]: @types/mdx required as dev dep for MDXComponents type from mdx/types module
+- [03-02]: LessonBody is 'use client' wrapping MDXRemote children (not MDXRemote itself) — preserves RSC rendering while DeepDiveProvider + DefinitionProvider provide client context
+- [03-02]: Content versioning trigger uses IS DISTINCT FROM + IS NOT NULL guard — prevents NOT NULL violation on first content insertion
+- [03-02]: MarkCompleteButton uses local useState for completed state — Phase 5 wires real Supabase mutation without changing component interface
+- [03-02]: @custom-variant light added to globals.css enabling light:not-prose-invert Tailwind class for prose light-mode override
 
 ### Pending Todos
 
@@ -103,5 +107,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Completed 03-01-PLAN.md — 8 custom MDX lesson components, accordion/inline-expand contexts, Mermaid diagram renderer, MDX components map, and Tailwind Typography plugin configured.
+Stopped at: Checkpoint 03-02 Task 3 human-verify — lesson MDX rendering pipeline awaiting visual verification in browser
 Resume file: None
