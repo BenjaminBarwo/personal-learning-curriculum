@@ -9,7 +9,7 @@ import { mdxComponents } from '@/lib/mdx-components'
 import { LessonBody } from '@/components/lesson/LessonBody'
 import { LessonNavigation } from '@/components/lesson/LessonNavigation'
 import { MarkCompleteButton } from '@/components/lesson/MarkCompleteButton'
-import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@/types/database.types'
+import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson, ActiveQuizQuestion } from '@/types/database.types'
 
 interface LessonPageProps {
   params: Promise<{
@@ -95,6 +95,15 @@ export default async function LessonPage({ params }: LessonPageProps) {
   }
 
   const lesson = lessonData as ActiveLesson
+
+  // Fetch quiz questions for this lesson
+  const { data: questionsData } = await supabase
+    .from('active_quiz_questions')
+    .select('*')
+    .eq('lesson_id', lesson.id)
+    .order('display_order', { ascending: true })
+
+  const quizQuestions = (questionsData ?? []) as ActiveQuizQuestion[]
 
   // Fetch sibling lessons for navigation
   const { data: siblings } = await supabase
@@ -202,7 +211,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
                        light:prose light:not-prose-invert"
             style={{ maxWidth: '75ch' }}
           >
-            <LessonBody>
+            <LessonBody quizQuestions={quizQuestions}>
               <Suspense fallback={<LessonContentSkeleton />}>
                 <MDXRemote
                   source={lesson.mdx_content}

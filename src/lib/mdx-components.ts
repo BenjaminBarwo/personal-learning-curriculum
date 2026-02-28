@@ -8,6 +8,7 @@ import {
   Definition,
   Diagram,
   Video,
+  Quiz,
 } from '@/components/lesson'
 
 export const mdxComponents: MDXComponents = {
@@ -19,4 +20,5 @@ export const mdxComponents: MDXComponents = {
   Definition,
   Diagram,
   Video,
+  Quiz,
 }
