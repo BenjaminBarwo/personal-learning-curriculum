@@ -16,9 +16,9 @@ export function Hook({ children }: HookProps) {
         >
           &#x1F4A1;
         </span>
-        <p className="text-xl font-medium leading-relaxed text-text-primary">
+        <div className="text-xl font-medium leading-relaxed text-text-primary">
           {children}
-        </p>
+        </div>
       </div>
     </div>
   )
