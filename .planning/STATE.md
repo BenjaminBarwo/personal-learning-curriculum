@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-02-27T23:48:10.228Z"
+last_updated: "2026-02-28T00:54:55Z"
 progress:
-  total_phases: 2
+  total_phases: 6
   completed_phases: 2
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 7
+  completed_plans: 6
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** Phase 2 — App Shell Navigation
+**Current focus:** Phase 3 — Lesson Content Pipeline
 
 ## Current Position
 
-Phase: 2 of 6 (App Shell Navigation)
-Plan: 2 of 2 in current phase (COMPLETE)
-Status: Phase 2 complete — app shell navigation fully built and verified
-Last activity: 2026-02-27 — Plan 02-02 executed: Five hierarchy pages (Dashboard to Lesson stub), BreadcrumbContext wiring, pillar color accent threading, and human-verify checkpoint approved
+Phase: 3 of 6 (Lesson Content Pipeline)
+Plan: 1 of 2 in current phase (COMPLETE)
+Status: Plan 03-01 complete — MDX component library and dependencies built
+Last activity: 2026-02-28 — Plan 03-01 executed: 8 custom MDX lesson components, DeepDive/Definition contexts, Mermaid diagram renderer, MDX components map, Tailwind Typography configured
 
-Progress: [█████░░░░░] 33%
+Progress: [████████░░] 75%
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 3
-- Average duration: 14 min
-- Total execution time: 0.7 hours
+- Total plans completed: 6
+- Average duration: 11 min
+- Total execution time: 1.0 hours
 
 **By Phase:**
 
@@ -42,9 +42,10 @@ Progress: [█████░░░░░] 33%
 |-------|-------|-------|----------|
 | 01-infrastructure | 3 | 41 min | 13.7 min |
 | 02-app-shell-navigation | 2 | 15 min | 7.5 min |
+| 03-lesson-content-pipeline | 1 | 4 min | 4 min |
 
 **Recent Trend:**
-- Last 5 plans: 8 min, 3 min, 30 min
+- Last 5 plans: 8 min, 3 min, 30 min, 4 min
 - Trend: Variable (30 min includes human-action checkpoint)
 
 *Updated after each plan completion*
@@ -81,6 +82,10 @@ Recent decisions affecting current work:
 - [02-02]: Sequential hierarchy fetching chosen: fetch parent by slug first to get UUID, then fetch children by parent_id — validates URL integrity at each level
 - [02-02]: CSS variable --pillar-color on main element for dynamic hex accent threading — avoids Tailwind arbitrary value issues with runtime DB colors
 - [02-02]: Mock lessonCount: 0 and progress: 0 on PillarCard/ProgressBar — Phase 5 replaces with real Supabase aggregation; no component changes needed
+- [03-01]: react-player v3.4.0 uses src prop (not url) and VideoElementProps API — major breaking change from v2; lazy subpath does not exist in v3
+- [03-01]: shiki pinned to ^3.23.0 — v4.0.0 not yet in rehype-pretty-code@0.14.1 peer range (^1||^2||^3)
+- [03-01]: DeepDiveProvider and DefinitionProvider exported from component files and barrel index.ts; Plan 03-02 wraps MDX output with both providers
+- [03-01]: @types/mdx required as dev dep for MDXComponents type from mdx/types module
 
 ### Pending Todos
 
@@ -97,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-27
-Stopped at: Completed 02-02-PLAN.md — Five hierarchy pages with BreadcrumbContext, real Supabase data fetching, pillar color accent threading, and full navigation flow verified. Phase 2 complete.
+Last session: 2026-02-28
+Stopped at: Completed 03-01-PLAN.md — 8 custom MDX lesson components, accordion/inline-expand contexts, Mermaid diagram renderer, MDX components map, and Tailwind Typography plugin configured.
 Resume file: None
