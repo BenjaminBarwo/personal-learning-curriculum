@@ -3,6 +3,8 @@
 
 /* Tailwind v4: dark mode via class — NOT tailwind.config.js (removed in v4) */
 @custom-variant dark (&:where(.dark, .dark *));
+/* Light mode custom variant — enables light:prose-invert override pattern */
+@custom-variant light (&:where(.light, .light *));
 
 @theme {
   /* Pillar color tokens — data-driven from DB but static as Tailwind tokens for non-dynamic usage */

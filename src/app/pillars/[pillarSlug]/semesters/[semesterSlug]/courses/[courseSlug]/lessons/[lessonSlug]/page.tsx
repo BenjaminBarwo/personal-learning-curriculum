@@ -1,7 +1,14 @@
+import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
+import { MDXRemote } from 'next-mdx-remote-client/rsc'
+import rehypePrettyCode from 'rehype-pretty-code'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { buildBreadcrumbs } from '@/lib/navigation'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
+import { mdxComponents } from '@/lib/mdx-components'
+import { LessonBody } from '@/components/lesson/LessonBody'
+import { LessonNavigation } from '@/components/lesson/LessonNavigation'
+import { MarkCompleteButton } from '@/components/lesson/MarkCompleteButton'
 import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@/types/database.types'
 
 interface LessonPageProps {
@@ -11,6 +18,22 @@ interface LessonPageProps {
     courseSlug: string
     lessonSlug: string
   }>
+}
+
+function LessonContentSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4" aria-hidden="true">
+      <div className="h-4 bg-surface-hover rounded w-3/4" />
+      <div className="h-4 bg-surface-hover rounded w-full" />
+      <div className="h-4 bg-surface-hover rounded w-5/6" />
+      <div className="h-4 bg-surface-hover rounded w-4/5" />
+      <div className="h-4 bg-surface-hover rounded w-full" />
+      <div className="h-4 bg-surface-hover rounded w-2/3" />
+      <div className="mt-8 h-4 bg-surface-hover rounded w-1/2" />
+      <div className="h-4 bg-surface-hover rounded w-full" />
+      <div className="h-4 bg-surface-hover rounded w-3/4" />
+    </div>
+  )
 }
 
 export default async function LessonPage({ params }: LessonPageProps) {
@@ -72,6 +95,19 @@ export default async function LessonPage({ params }: LessonPageProps) {
   }
 
   const lesson = lessonData as ActiveLesson
+
+  // Fetch sibling lessons for navigation
+  const { data: siblings } = await supabase
+    .from('active_lessons')
+    .select('id, name, slug, display_order')
+    .eq('course_id', course.id)
+    .order('display_order', { ascending: true })
+
+  const siblingLessons = (siblings ?? []) as Pick<ActiveLesson, 'id' | 'name' | 'slug' | 'display_order'>[]
+  const currentIndex = siblingLessons.findIndex((l) => l.slug === lessonSlug)
+  const prevLesson = currentIndex > 0 ? siblingLessons[currentIndex - 1] : null
+  const nextLesson = currentIndex < siblingLessons.length - 1 ? siblingLessons[currentIndex + 1] : null
+  const basePath = `/pillars/${pillarSlug}/semesters/${semesterSlug}/courses/${courseSlug}/lessons`
 
   const crumbs = buildBreadcrumbs({
     pillarName: pillar.name,
@@ -155,29 +191,49 @@ export default async function LessonPage({ params }: LessonPageProps) {
           </section>
         )}
 
-        {/* Content stub — Phase 3 will replace this with MDX rendering */}
-        <section>
-          <div className="rounded-xl border-2 border-dashed border-border-subtle p-12 text-center bg-surface-card">
-            <div
-              className="inline-flex w-12 h-12 rounded-xl items-center justify-center mb-4"
-              style={{ backgroundColor: `${pillarColor}20` }}
-              aria-hidden="true"
-            >
-              <svg
-                className="w-6 h-6"
-                style={{ color: pillarColor }}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+        {/* Lesson content */}
+        {lesson.mdx_content ? (
+          <article
+            className="prose prose-invert max-w-none
+                       prose-headings:text-text-primary prose-p:text-text-secondary
+                       prose-a:text-blue-400 prose-strong:text-text-primary
+                       prose-code:before:content-none prose-code:after:content-none
+                       [&_pre]:bg-surface-card [&_pre]:border [&_pre]:border-border-subtle
+                       light:prose light:not-prose-invert"
+            style={{ maxWidth: '75ch' }}
+          >
+            <LessonBody>
+              <Suspense fallback={<LessonContentSkeleton />}>
+                <MDXRemote
+                  source={lesson.mdx_content}
+                  components={mdxComponents}
+                  options={{
+                    mdxOptions: {
+                      rehypePlugins: [
+                        [rehypePrettyCode, { theme: 'github-dark' }],
+                      ],
+                    },
+                  }}
+                />
+              </Suspense>
+            </LessonBody>
+          </article>
+        ) : (
+          <section>
+            <div className="rounded-xl border-2 border-dashed border-border-subtle p-12 text-center bg-surface-card">
+              <p className="text-text-muted font-medium">No content available for this lesson yet</p>
             </div>
-            <p className="text-text-muted font-medium">Lesson content will be rendered here</p>
-            <p className="text-sm text-text-muted mt-1 opacity-75">Phase 3 — MDX rendering</p>
-          </div>
-        </section>
+          </section>
+        )}
+
+        {/* Mark as complete */}
+        <MarkCompleteButton lessonId={lesson.id} lessonSlug={lessonSlug} />
+
+        {/* Lesson navigation */}
+        <LessonNavigation
+          prevLesson={prevLesson ? { name: prevLesson.name, href: `${basePath}/${prevLesson.slug}` } : null}
+          nextLesson={nextLesson ? { name: nextLesson.name, href: `${basePath}/${nextLesson.slug}` } : null}
+        />
       </main>
     </>
   )
