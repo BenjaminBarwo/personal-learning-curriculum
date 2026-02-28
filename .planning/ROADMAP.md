@@ -64,10 +64,11 @@ Plans:
   3. User can hover or tap a domain term to see its inline definition
   4. Mermaid diagrams render inline within lesson content
   5. Lesson content is versioned; a previous version can be retrieved from lesson_versions without data loss
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 03-01: TBD
+- [ ] 03-01-PLAN.md — Install MDX dependencies, configure Tailwind Typography, build all 8 custom lesson components (Hook, ConceptBlock, DeepDive, Exercise, Takeaways, Definition, Diagram, Video) and MDX components map
+- [ ] 03-02-PLAN.md — Integrate MDX rendering into lesson page, add next/previous navigation, mark-as-complete button, content versioning trigger, visual verification
 
 ### Phase 4: Quiz Engine
 **Goal**: Learners can complete inline quizzes with immediate feedback and all quiz attempts are persisted for future spaced repetition
@@ -120,7 +121,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 |-------|----------------|--------|-----------|
 | 1. Infrastructure | 3/3 | Complete | 2026-02-27 |
 | 2. App Shell + Navigation | 2/2 | Complete   | 2026-02-27 |
-| 3. Lesson Content Pipeline | 0/TBD | Not started | - |
+| 3. Lesson Content Pipeline | 0/2 | Planned | - |
 | 4. Quiz Engine | 0/TBD | Not started | - |
 | 5. Progress + Dashboard | 0/TBD | Not started | - |
 | 6. Seed Content | 0/TBD | Not started | - |
