@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-02-28T01:01:00Z"
+last_updated: "2026-02-28T02:00:00Z"
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 7
   completed_plans: 7
 ---
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 
 ## Current Position
 
-Phase: 3 of 6 (Lesson Content Pipeline)
-Plan: 2 of 2 in current phase (AWAITING CHECKPOINT — human-verify Task 3)
-Status: Plan 03-02 complete (2 tasks) — awaiting human verification checkpoint; MDX rendering integrated, content versioning trigger deployed
-Last activity: 2026-02-28 — Plan 03-02 executed: MDXRemote integrated into lesson page, LessonBody/LessonNavigation/MarkCompleteButton created, content versioning trigger deployed
+Phase: 3 of 6 (Lesson Content Pipeline) — COMPLETE
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Plan 03-02 fully complete (3/3 tasks, including human-verify checkpoint approved); Phase 3 complete; ready to begin Phase 4
+Last activity: 2026-02-28 — Plan 03-02 fully verified: MDXRemote integrated into lesson page, LessonBody/LessonNavigation/MarkCompleteButton created, content versioning trigger deployed, Hook hydration error fixed, human verification approved
 
-Progress: [█████████░] 87%
+Progress: [██████████] 100% (Phases 1-3 complete; Phase 4 not yet planned)
 
 ## Performance Metrics
 
@@ -90,6 +90,7 @@ Recent decisions affecting current work:
 - [03-02]: Content versioning trigger uses IS DISTINCT FROM + IS NOT NULL guard — prevents NOT NULL violation on first content insertion
 - [03-02]: MarkCompleteButton uses local useState for completed state — Phase 5 wires real Supabase mutation without changing component interface
 - [03-02]: @custom-variant light added to globals.css enabling light:not-prose-invert Tailwind class for prose light-mode override
+- [03-02]: Hook.tsx children wrapper changed from p to div — MDX children may include block-level elements; p cannot contain block-level children (hydration error); div is always correct for component wrappers receiving unknown children
 
 ### Pending Todos
 
@@ -107,5 +108,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-02-28
-Stopped at: Checkpoint 03-02 Task 3 human-verify — lesson MDX rendering pipeline awaiting visual verification in browser
+Stopped at: Phase 3 complete — human-verify checkpoint approved for 03-02; ready to start Phase 4 Quiz Engine
 Resume file: None
