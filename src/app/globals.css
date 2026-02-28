@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
 /* Tailwind v4: dark mode via class — NOT tailwind.config.js (removed in v4) */
 @custom-variant dark (&:where(.dark, .dark *));
