@@ -23,9 +23,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Quizzes
 
-- [ ] **QUIZ-01**: User can complete inline quizzes with immediate correct/incorrect feedback and explanations
-- [ ] **QUIZ-02**: User can answer multiple question types (multiple-choice, recall, application, analysis, comparison)
-- [ ] **QUIZ-03**: Quiz scores are persisted to database per attempt (feeds future FSRS)
+- [x] **QUIZ-01**: User can complete inline quizzes with immediate correct/incorrect feedback and explanations
+- [x] **QUIZ-02**: User can answer multiple question types (multiple-choice, recall, application, analysis, comparison)
+- [x] **QUIZ-03**: Quiz scores are persisted to database per attempt (feeds future FSRS)
 
 ### Progress
 
@@ -110,9 +110,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | CONT-03 | Phase 3 | Complete |
 | CONT-04 | Phase 3 | Complete |
 | CONT-05 | Phase 3 | Complete |
-| QUIZ-01 | Phase 4 | Pending |
-| QUIZ-02 | Phase 4 | Pending |
-| QUIZ-03 | Phase 4 | Pending |
+| QUIZ-01 | Phase 4 | Complete |
+| QUIZ-02 | Phase 4 | Complete |
+| QUIZ-03 | Phase 4 | Complete |
 | PROG-01 | Phase 5 | Pending |
 | PROG-02 | Phase 5 | Pending |
 | PROG-03 | Phase 5 | Pending |
