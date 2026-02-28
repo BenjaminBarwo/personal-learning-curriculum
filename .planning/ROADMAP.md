@@ -79,10 +79,11 @@ Plans:
   2. User can answer at least four question types: multiple-choice, recall, application, and analysis
   3. Every quiz attempt (question ID, selected answer, correct/incorrect, timestamp) is written to the database
   4. Quiz state does not reset if the user scrolls away and returns to the quiz within the same session
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 04-01: TBD
+- [ ] 04-01-PLAN.md — QuizProvider context, Quiz component (all 5 question types), LessonBody + page.tsx + mdx-components integration, seed test quiz questions
+- [ ] 04-02-PLAN.md — Human verification of quiz rendering, feedback, state persistence, and database attempt records
 
 ### Phase 5: Progress + Dashboard
 **Goal**: The learner's progress is tracked, visible at every level, and the dashboard surfaces exactly where to continue
