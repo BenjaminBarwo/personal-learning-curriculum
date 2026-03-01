@@ -2,7 +2,7 @@ import { Suspense } from 'react'
 import { notFound } from 'next/navigation'
 import { MDXRemote } from 'next-mdx-remote-client/rsc'
 import rehypePrettyCode from 'rehype-pretty-code'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient, createAdminSupabaseClient } from '@/lib/supabase/server'
 import { buildBreadcrumbs } from '@/lib/navigation'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import { mdxComponents } from '@/lib/mdx-components'
@@ -98,12 +98,15 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   const lesson = lessonData as ActiveLesson
 
+  // Use admin client for progress writes (bypasses RLS — avoids Clerk JWT auth gap)
+  const adminSupabase = createAdminSupabaseClient()
+
   // Mark lesson as in_progress (fire-and-forget — does not block render)
   // Preserves completed status if already completed
-  void markLessonInProgress(supabase, lesson.id, HARDCODED_USER_ID)
+  void markLessonInProgress(adminSupabase, lesson.id, HARDCODED_USER_ID)
 
   // Query current completion status to initialise MarkCompleteButton
-  const { data: progressData } = await supabase
+  const { data: progressData } = await adminSupabase
     .from('progress')
     .select('status')
     .eq('user_id', HARDCODED_USER_ID)

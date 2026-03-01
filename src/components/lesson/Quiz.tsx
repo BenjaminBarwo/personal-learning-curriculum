@@ -1,9 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { useSession } from '@clerk/nextjs'
-import { createClerkSupabaseClient } from '@/lib/supabase/client'
-import { HARDCODED_USER_ID } from '@/constants/user'
+import { persistQuizAttempt } from '@/lib/actions/progress'
 import { useQuizContext } from './QuizProvider'
 import type { ActiveQuizQuestion, QuizOption } from '@/types/database.types'
 
@@ -145,9 +143,6 @@ function Feedback({ isCorrect, explanation, acceptedAnswers, questionType }: Fee
 // ============================================================
 
 export function Quiz({ questionId }: QuizProps) {
-  // CRITICAL: createClerkSupabaseClient calls useSession internally — must be at top level
-  const supabase = createClerkSupabaseClient()
-  const { session } = useSession()
   const { questions, answers, submitAnswer } = useQuizContext()
 
   const [localSelected, setLocalSelected] = useState<string | null>(null)
@@ -171,8 +166,6 @@ export function Quiz({ questionId }: QuizProps) {
     )
   }
 
-  const userId = session?.user?.id ?? HARDCODED_USER_ID
-
   async function handleSubmit() {
     if (!localSelected || submitted || isSubmitting) return
 
@@ -185,25 +178,16 @@ export function Quiz({ questionId }: QuizProps) {
         : null
 
     try {
-      // Count existing attempts for attempt_number
-      const { count } = await supabase
-        .from('quiz_attempts')
-        .select('*', { count: 'exact', head: true })
-        .eq('question_id', questionId)
-        .eq('user_id', userId)
-
-      await supabase.from('quiz_attempts').insert({
-        user_id: userId,
-        question_id: questionId,
-        lesson_id: question.lesson_id,
-        selected_answer: localSelected,
-        correct_answer: question.correct_answer ?? '',
-        is_correct: isCorrect,
-        time_spent_seconds: timeSpent,
-        attempt_number: (count ?? 0) + 1,
+      await persistQuizAttempt({
+        questionId,
+        lessonId: question.lesson_id,
+        selectedAnswer: localSelected,
+        correctAnswer: question.correct_answer ?? '',
+        isCorrect,
+        timeSpentSeconds: timeSpent,
       })
     } catch (error) {
-      console.error('[Quiz] Failed to persist attempt:', error)
+      console.error('[Quiz] Unexpected error persisting attempt:', error)
       // Do NOT block UX — always submit to context
     } finally {
       submitAnswer(questionId, localSelected!, isCorrect)

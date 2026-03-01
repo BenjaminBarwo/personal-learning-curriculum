@@ -2,8 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClerkSupabaseClient } from '@/lib/supabase/client'
-import { HARDCODED_USER_ID } from '@/constants/user'
+import { markLessonComplete } from '@/lib/actions/progress'
 
 interface MarkCompleteButtonProps {
   lessonId: string
@@ -12,8 +11,6 @@ interface MarkCompleteButtonProps {
 }
 
 export function MarkCompleteButton({ lessonId, lessonSlug: _lessonSlug, initialCompleted }: MarkCompleteButtonProps) {
-  // createClerkSupabaseClient uses useSession() hook internally — MUST be called at component top level
-  const supabase = createClerkSupabaseClient()
   const router = useRouter()
 
   const [isCompleted, setIsCompleted] = useState(initialCompleted ?? false)
@@ -26,19 +23,8 @@ export function MarkCompleteButton({ lessonId, lessonSlug: _lessonSlug, initialC
     setIsLoading(true)
     setErrorMessage(null)
     try {
-      const { error } = await supabase
-        .from('progress')
-        .upsert(
-          {
-            user_id: HARDCODED_USER_ID,
-            lesson_id: lessonId,
-            status: 'completed' as const,
-            completed_at: new Date().toISOString(),
-            last_accessed_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id,lesson_id' }
-        )
-      if (error) throw error
+      const result = await markLessonComplete(lessonId)
+      if (!result.success) throw new Error(result.error)
       setIsCompleted(true)
       router.refresh() // triggers RSC re-render so progress bars on parent pages update
     } catch (err) {

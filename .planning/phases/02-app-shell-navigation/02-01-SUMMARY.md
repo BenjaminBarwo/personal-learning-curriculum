@@ -104,7 +104,7 @@ Each task was committed atomically:
 1. **Task 1: Dark mode theme system and root layout** - `1f30052` (feat)
 2. **Task 2: Header, Breadcrumbs, and reusable UI components** - `2883ad8` (feat)
 
-**Plan metadata:** (pending — final commit hash)
+**Plan metadata:** `071d05a` (docs: complete plan)
 
 ## Files Created/Modified
 
