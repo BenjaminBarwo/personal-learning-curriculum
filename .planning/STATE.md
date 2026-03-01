@@ -8,7 +8,7 @@ progress:
   total_phases: 4
   completed_phases: 3
   total_plans: 9
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -18,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** Phase 4 — Quiz Engine
+**Current focus:** Phase 5 — Progress + Dashboard
 
 ## Current Position
 
-Phase: 4 of 6 (Quiz Engine) — IN PROGRESS
-Plan: 1 of 1 in current phase — COMPLETE
-Status: Plan 04-01 fully complete (3/3 tasks); Quiz engine built and integrated; seed.sql updated with 5 test questions
-Last activity: 2026-02-28 — Plan 04-01: QuizProvider context, Quiz component (5 question types), LessonBody integration, MDX components map, lesson page server-side pre-fetch, seed.sql test questions
+Phase: 4 of 6 (Quiz Engine) — COMPLETE
+Plan: 2 of 2 in current phase — COMPLETE
+Status: Plan 04-02 fully complete (1/1 tasks); Quiz engine human-verified — all 5 question types approved, session persistence confirmed, dark/light mode confirmed, RLS auth gap documented
+Last activity: 2026-03-01 — Plan 04-02: Human verification checkpoint approved — quiz engine UX confirmed correct end-to-end
 
-Progress: [████████░░] 67% (Phases 1-3 complete; Phase 4 Plan 1 complete)
+Progress: [████████░░] 75% (Phases 1-4 complete; Phase 5 not started)
 
 ## Performance Metrics
 
 **Velocity:**
-- Total plans completed: 6
-- Average duration: 11 min
-- Total execution time: 1.0 hours
+- Total plans completed: 9
+- Average duration: ~9 min (excluding checkpoint verification time)
+- Total execution time: ~1.3 hours (code execution)
 
 **By Phase:**
 
@@ -43,10 +43,10 @@ Progress: [████████░░] 67% (Phases 1-3 complete; Phase 4 Pla
 | 01-infrastructure | 3 | 41 min | 13.7 min |
 | 02-app-shell-navigation | 2 | 15 min | 7.5 min |
 | 03-lesson-content-pipeline | 2 | 6 min | 3 min |
-| 04-quiz-engine | 1 | 3 min | 3 min |
+| 04-quiz-engine | 2 | 3 min + checkpoint | ~3 min code |
 
 **Recent Trend:**
-- Last 5 plans: 3 min, 30 min, 4 min, 2 min, 3 min
+- Last 5 plans: checkpoint, 3 min, 30 min, 4 min, 2 min
 - Trend: Consistent (3 min plans are well-specified with clear interfaces)
 
 *Updated after each plan completion*
@@ -95,6 +95,8 @@ Recent decisions affecting current work:
 - [Phase 04-01]: Double cast (as unknown as QuizOption[]) required for Json JSONB field — TypeScript strict mode prevents direct cast; unknown intermediary satisfies compiler
 - [Phase 04-01]: createClerkSupabaseClient called at Quiz component top level — it uses useSession() hook internally, cannot be called inside event handlers
 - [Phase 04-01]: quizQuestions prop defaults to [] on LessonBody — backward compatible, existing lesson pages work unchanged
+- [04-02]: RLS blocks client-side quiz_attempts inserts because app has no Clerk sign-in UI yet — auth feature gap (Phase 5+), not a quiz engine bug; persistence confirmed working via service role
+- [04-02]: Quiz engine human verification approved — all 5 question types confirmed correct; session persistence, dark/light mode, and error handling all verified
 
 ### Pending Todos
 
@@ -111,6 +113,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-02-28
-Stopped at: Paused at 04-02-PLAN.md checkpoint:human-verify — awaiting visual verification of quiz engine UX
+Last session: 2026-03-01
+Stopped at: Completed 04-02-PLAN.md — Phase 4 Quiz Engine fully complete, human-verified
 Resume file: None
