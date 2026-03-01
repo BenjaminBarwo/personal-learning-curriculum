@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { createServerSupabaseClient, createAdminSupabaseClient } from '@/lib/supabase/server'
-import { getContinueLesson, getLessonProgressForScope } from '@/lib/progress'
+import { getContinueLesson } from '@/lib/progress'
 import { HARDCODED_USER_ID } from '@/constants/user'
 import { PillarCard } from '@/components/ui/PillarCard'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
