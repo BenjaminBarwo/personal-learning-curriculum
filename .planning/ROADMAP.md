@@ -125,10 +125,10 @@ Plans:
   2. `createClerkSupabaseClient` dead code is removed from `src/lib/supabase/client.ts`
   3. Stale `getLessonProgressForScope` import is removed from `src/app/page.tsx`
   4. Re-audit of PROG-01/02/03 returns "satisfied" instead of "partial"/"unsatisfied"
-**Plans**: TBD
+**Plans**: 1 plan
 
 Plans:
-- [ ] 07-01: TBD
+- [ ] 07-01-PLAN.md — Dead code removal, stale import fix, Phase 5 VERIFICATION.md creation (gap closure)
 
 ## Progress
 
@@ -142,5 +142,5 @@ Phases execute: 1 → 2 → 3 → 4 → 5 → 7 (verification cleanup) → 6 (se
 | 3. Lesson Content Pipeline | 2/2 | Complete   | 2026-02-28 |
 | 4. Quiz Engine | 2/2 | Complete   | 2026-03-01 |
 | 5. Progress + Dashboard | 2/2 | Complete   | 2026-03-01 |
-| 7. Verification + Cleanup | 0/TBD | Not started | - |
+| 7. Verification + Cleanup | 0/1 | Planned | - |
 | 6. Seed Content | 0/TBD | Not started | - |
