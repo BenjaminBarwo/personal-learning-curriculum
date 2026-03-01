@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: unknown
-last_updated: "2026-03-01T04:51:59.380Z"
+status: in_progress
+last_updated: "2026-03-01T05:12:00Z"
 progress:
-  total_phases: 4
+  total_phases: 6
   completed_phases: 4
-  total_plans: 9
-  completed_plans: 9
+  total_plans: 11
+  completed_plans: 10
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 
 ## Current Position
 
-Phase: 4 of 6 (Quiz Engine) — COMPLETE
-Plan: 2 of 2 in current phase — COMPLETE
-Status: Plan 04-02 fully complete (1/1 tasks); Quiz engine human-verified — all 5 question types approved, session persistence confirmed, dark/light mode confirmed, RLS auth gap documented
-Last activity: 2026-03-01 — Plan 04-02: Human verification checkpoint approved — quiz engine UX confirmed correct end-to-end
+Phase: 5 of 6 (Progress + Dashboard) — IN PROGRESS
+Plan: 1 of 2 in current phase — COMPLETE
+Status: Plan 05-01 fully complete (2/2 tasks); progress data layer built — helpers, wired button, migration, types
+Last activity: 2026-03-01 — Plan 05-01: Progress data layer complete — markLessonInProgress, MarkCompleteButton wired, manually_unlocked migration
 
-Progress: [████████░░] 75% (Phases 1-4 complete; Phase 5 not started)
+Progress: [█████████░] 83% (Phases 1-4 complete; Phase 5 plan 1 of 2 complete)
 
 ## Performance Metrics
 
@@ -44,10 +44,11 @@ Progress: [████████░░] 75% (Phases 1-4 complete; Phase 5 not
 | 02-app-shell-navigation | 2 | 15 min | 7.5 min |
 | 03-lesson-content-pipeline | 2 | 6 min | 3 min |
 | 04-quiz-engine | 2 | 3 min + checkpoint | ~3 min code |
+| 05-progress-dashboard | 1/2 | 2 min | 2 min |
 
 **Recent Trend:**
-- Last 5 plans: checkpoint, 3 min, 30 min, 4 min, 2 min
-- Trend: Consistent (3 min plans are well-specified with clear interfaces)
+- Last 5 plans: checkpoint, 3 min, 30 min, 4 min, 2 min, 2 min
+- Trend: Consistent (well-specified plans with clear interfaces execute in ~2-3 min)
 
 *Updated after each plan completion*
 
@@ -97,6 +98,10 @@ Recent decisions affecting current work:
 - [Phase 04-01]: quizQuestions prop defaults to [] on LessonBody — backward compatible, existing lesson pages work unchanged
 - [04-02]: RLS blocks client-side quiz_attempts inserts because app has no Clerk sign-in UI yet — auth feature gap (Phase 5+), not a quiz engine bug; persistence confirmed working via service role
 - [04-02]: Quiz engine human verification approved — all 5 question types confirmed correct; session persistence, dark/light mode, and error handling all verified
+- [05-01]: Caller-provided Supabase client for all progress helpers — each page creates its client and passes it in; avoids repeated client instantiation and ensures auth context flows through
+- [05-01]: head:true count optimization in getLessonProgressForScope — only count transferred, no row data; important for large lesson sets
+- [05-01]: Fire-and-forget markLessonInProgress with try/catch logging — progress upsert failure must not block lesson content rendering
+- [05-01]: manually_unlocked as table-level boolean on semesters — simpler than per-user override table for single-user platform
 
 ### Pending Todos
 
@@ -114,5 +119,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 04-02-PLAN.md — Phase 4 Quiz Engine fully complete, human-verified
+Stopped at: Completed 05-01-PLAN.md — Progress data layer complete; ready for 05-02 hierarchy progress display
 Resume file: None

@@ -29,9 +29,9 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Progress
 
-- [ ] **PROG-01**: User's lesson progress (not_started/in_progress/completed) is tracked and persisted
+- [x] **PROG-01**: User's lesson progress (not_started/in_progress/completed) is tracked and persisted
 - [ ] **PROG-02**: User can see progress rings/bars at pillar and course levels
-- [ ] **PROG-03**: Semesters unlock when previous semester is completed, with manual override
+- [x] **PROG-03**: Semesters unlock when previous semester is completed, with manual override
 
 ### Infrastructure
 
@@ -113,9 +113,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | QUIZ-01 | Phase 4 | Complete |
 | QUIZ-02 | Phase 4 | Complete |
 | QUIZ-03 | Phase 4 | Complete |
-| PROG-01 | Phase 5 | Pending |
+| PROG-01 | Phase 5 | Complete |
 | PROG-02 | Phase 5 | Pending |
-| PROG-03 | Phase 5 | Pending |
+| PROG-03 | Phase 5 | Complete |
 | INFR-01 | Phase 1 | Pending |
 | INFR-02 | Phase 1 | Pending |
 | INFR-03 | Phase 1 | Complete (01-03) |
