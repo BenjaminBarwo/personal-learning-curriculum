@@ -94,10 +94,11 @@ Plans:
   2. Dashboard shows a "continue where you left off" card pointing to the most recently accessed incomplete lesson
   3. Progress rings or bars reflect actual completion percentage at both pillar and course levels
   4. Semester N+1 is locked until Semester N is completed; a manual override unlocks it without completing the prior semester
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: TBD
+- [ ] 05-01-PLAN.md — Progress data layer: progress computation helpers, MarkCompleteButton wiring, mark-in-progress on lesson load, semester unlock migration
+- [ ] 05-02-PLAN.md — Hierarchy progress display: dashboard continue card, real progress bars at all levels, semester lock/unlock UI, lesson status icons, human verification
 
 ### Phase 6: Seed Content
 **Goal**: Two complete, hand-written lessons for Pillar 1 are live in the database and the full platform works end-to-end with real content
