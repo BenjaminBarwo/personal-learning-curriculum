@@ -2,13 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: in_progress
-last_updated: "2026-03-01T05:12:00Z"
+status: unknown
+last_updated: "2026-03-01T05:18:42.825Z"
 progress:
-  total_phases: 6
-  completed_phases: 4
+  total_phases: 5
+  completed_phases: 5
   total_plans: 11
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -23,11 +23,11 @@ See: .planning/PROJECT.md (updated 2026-02-27)
 ## Current Position
 
 Phase: 5 of 6 (Progress + Dashboard) — IN PROGRESS
-Plan: 1 of 2 in current phase — COMPLETE
-Status: Plan 05-01 fully complete (2/2 tasks); progress data layer built — helpers, wired button, migration, types
-Last activity: 2026-03-01 — Plan 05-01: Progress data layer complete — markLessonInProgress, MarkCompleteButton wired, manually_unlocked migration
+Plan: 2 of 2 in current phase — AT CHECKPOINT (human-verify)
+Status: Plan 05-02 Task 1 complete (real progress wired into all hierarchy pages); awaiting human verification at Task 2 checkpoint
+Last activity: 2026-03-01 — Plan 05-02: Hierarchy progress display wired — continue card, pillar/semester/course progress bars, semester lock enforcement, lesson status icons
 
-Progress: [█████████░] 83% (Phases 1-4 complete; Phase 5 plan 1 of 2 complete)
+Progress: [█████████░] 91% (Phases 1-4 complete; Phase 5 plan 2 of 2 at checkpoint)
 
 ## Performance Metrics
 
@@ -44,13 +44,14 @@ Progress: [█████████░] 83% (Phases 1-4 complete; Phase 5 pla
 | 02-app-shell-navigation | 2 | 15 min | 7.5 min |
 | 03-lesson-content-pipeline | 2 | 6 min | 3 min |
 | 04-quiz-engine | 2 | 3 min + checkpoint | ~3 min code |
-| 05-progress-dashboard | 1/2 | 2 min | 2 min |
+| 05-progress-dashboard | 2/2 | 4 min | 2 min |
 
 **Recent Trend:**
 - Last 5 plans: checkpoint, 3 min, 30 min, 4 min, 2 min, 2 min
 - Trend: Consistent (well-specified plans with clear interfaces execute in ~2-3 min)
 
 *Updated after each plan completion*
+| Phase 05-progress-dashboard P02 | 2 | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -102,6 +103,8 @@ Recent decisions affecting current work:
 - [05-01]: head:true count optimization in getLessonProgressForScope — only count transferred, no row data; important for large lesson sets
 - [05-01]: Fire-and-forget markLessonInProgress with try/catch logging — progress upsert failure must not block lesson content rendering
 - [05-01]: manually_unlocked as table-level boolean on semesters — simpler than per-user override table for single-user platform
+- [Phase 05-02]: Batched N+1 avoidance: all pages collect lesson IDs in scope, then single .in() progress query — no per-lesson DB round trips
+- [Phase 05-02]: Semester lock enforced at page level — locked semester URL shows locked UI, cannot be bypassed by direct navigation
 
 ### Pending Todos
 
@@ -119,5 +122,5 @@ None yet.
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Completed 05-01-PLAN.md — Progress data layer complete; ready for 05-02 hierarchy progress display
+Stopped at: 05-02-PLAN.md Task 2 checkpoint — human verification of progress tracking end-to-end (Task 1 complete, committed d10a642)
 Resume file: None

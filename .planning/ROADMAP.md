@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: App Shell + Navigation** - Layout, routing, pillar color system, breadcrumbs, dark mode, mobile (completed 2026-02-27)
 - [x] **Phase 3: Lesson Content Pipeline** - MDX rendering, all display and interactive components, content versioning (completed 2026-02-28)
 - [x] **Phase 4: Quiz Engine** - Quiz rendering, all question types, attempt persistence (completed 2026-02-28)
-- [ ] **Phase 5: Progress + Dashboard** - Lesson progress tracking, progress rings, semester unlock, "continue" logic
+- [x] **Phase 5: Progress + Dashboard** - Lesson progress tracking, progress rings, semester unlock, "continue" logic (completed 2026-03-01)
 - [ ] **Phase 6: Seed Content** - Two complete hand-written lessons and all 7 pillars seeded; end-to-end validation
 
 ## Phase Details
@@ -125,5 +125,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. App Shell + Navigation | 2/2 | Complete   | 2026-02-27 |
 | 3. Lesson Content Pipeline | 2/2 | Complete   | 2026-02-28 |
 | 4. Quiz Engine | 2/2 | Complete   | 2026-03-01 |
-| 5. Progress + Dashboard | 0/TBD | Not started | - |
+| 5. Progress + Dashboard | 2/2 | Complete   | 2026-03-01 |
 | 6. Seed Content | 0/TBD | Not started | - |
