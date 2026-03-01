@@ -18,6 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Quiz Engine** - Quiz rendering, all question types, attempt persistence (completed 2026-02-28)
 - [x] **Phase 5: Progress + Dashboard** - Lesson progress tracking, progress rings, semester unlock, "continue" logic (completed 2026-03-01)
 - [ ] **Phase 6: Seed Content** - Two complete hand-written lessons and all 7 pillars seeded; end-to-end validation
+- [ ] **Phase 7: Verification + Code Cleanup** - Phase 5 VERIFICATION.md, dead code removal, stale import fix (gap closure from audit)
 
 ## Phase Details
 
@@ -114,10 +115,25 @@ Plans:
 Plans:
 - [ ] 06-01: TBD
 
+### Phase 7: Verification + Code Cleanup
+**Goal**: Close all verification and code quality gaps from the v1.0 milestone audit — Phase 5 gets its VERIFICATION.md and dead code is removed
+**Depends on**: Phase 5
+**Requirements**: PROG-01 (verify), PROG-02 (verify), PROG-03 (verify)
+**Gap Closure:** Closes gaps from audit
+**Success Criteria** (what must be TRUE):
+  1. Phase 5 has a VERIFICATION.md confirming PROG-01, PROG-02, PROG-03 are satisfied
+  2. `createClerkSupabaseClient` dead code is removed from `src/lib/supabase/client.ts`
+  3. Stale `getLessonProgressForScope` import is removed from `src/app/page.tsx`
+  4. Re-audit of PROG-01/02/03 returns "satisfied" instead of "partial"/"unsatisfied"
+**Plans**: TBD
+
+Plans:
+- [ ] 07-01: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
+Phases execute: 1 → 2 → 3 → 4 → 5 → 7 (verification cleanup) → 6 (seed content)
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -126,4 +142,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 3. Lesson Content Pipeline | 2/2 | Complete   | 2026-02-28 |
 | 4. Quiz Engine | 2/2 | Complete   | 2026-03-01 |
 | 5. Progress + Dashboard | 2/2 | Complete   | 2026-03-01 |
+| 7. Verification + Cleanup | 0/TBD | Not started | - |
 | 6. Seed Content | 0/TBD | Not started | - |
