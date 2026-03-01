@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient, createAdminSupabaseClient } from '@/lib/supabase/server'
 import { getContinueLesson, getLessonProgressForScope } from '@/lib/progress'
 import { HARDCODED_USER_ID } from '@/constants/user'
 import { PillarCard } from '@/components/ui/PillarCard'
@@ -8,6 +8,7 @@ import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@
 
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
+  const adminSupabase = createAdminSupabaseClient()
 
   const { data: pillarsData, error } = await supabase
     .from('active_pillars')
@@ -22,7 +23,7 @@ export default async function DashboardPage() {
   const firstPillar = activePillars[0]
 
   // Continue card — most recently accessed in-progress lesson
-  const continueData = await getContinueLesson(supabase, HARDCODED_USER_ID)
+  const continueData = await getContinueLesson(adminSupabase, HARDCODED_USER_ID)
 
   // Pillar progress — batched queries to avoid N+1
   // Fetch all semesters, courses, and lessons in one pass each
@@ -67,7 +68,7 @@ export default async function DashboardPage() {
   }
 
   // Fetch all completed lessons for this user in one query
-  const { data: completedProgressData } = await supabase
+  const { data: completedProgressData } = await adminSupabase
     .from('progress')
     .select('lesson_id')
     .eq('user_id', HARDCODED_USER_ID)

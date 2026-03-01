@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient, createAdminSupabaseClient } from '@/lib/supabase/server'
 import { buildBreadcrumbs } from '@/lib/navigation'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import { ProgressBar } from '@/components/ui/ProgressBar'
@@ -15,6 +15,7 @@ interface PillarPageProps {
 export default async function PillarPage({ params }: PillarPageProps) {
   const { pillarSlug } = await params
   const supabase = await createServerSupabaseClient()
+  const adminSupabase = createAdminSupabaseClient()
 
   // Fetch pillar by slug
   const { data: pillarData, error: pillarError } = await supabase
@@ -82,7 +83,7 @@ export default async function PillarPage({ params }: PillarPageProps) {
   const allPillarLessonIds = allLessons.map((l) => l.id)
   let completedLessonIds = new Set<string>()
   if (allPillarLessonIds.length > 0) {
-    const { data: progressData } = await supabase
+    const { data: progressData } = await adminSupabase
       .from('progress')
       .select('lesson_id')
       .eq('user_id', HARDCODED_USER_ID)

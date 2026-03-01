@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createServerSupabaseClient, createAdminSupabaseClient } from '@/lib/supabase/server'
 import { buildBreadcrumbs } from '@/lib/navigation'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import { ProgressBar } from '@/components/ui/ProgressBar'
@@ -15,6 +15,7 @@ interface SemesterPageProps {
 export default async function SemesterPage({ params }: SemesterPageProps) {
   const { pillarSlug, semesterSlug } = await params
   const supabase = await createServerSupabaseClient()
+  const adminSupabase = createAdminSupabaseClient()
 
   // Fetch pillar by slug (needed for color + breadcrumb name)
   const { data: pillarData, error: pillarError } = await supabase
@@ -89,7 +90,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
   const allSiblingLessonIds = siblingLessons.map((l) => l.id)
   let completedSiblingLessonIds = new Set<string>()
   if (allSiblingLessonIds.length > 0) {
-    const { data: siblingProgressData } = await supabase
+    const { data: siblingProgressData } = await adminSupabase
       .from('progress')
       .select('lesson_id')
       .eq('user_id', HARDCODED_USER_ID)
@@ -133,7 +134,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
   const currentSemLessonIds = currentSemLessons.map((l) => l.id)
   let completedCourseIds = new Set<string>()
   if (currentSemLessonIds.length > 0) {
-    const { data: semProgressData } = await supabase
+    const { data: semProgressData } = await adminSupabase
       .from('progress')
       .select('lesson_id')
       .eq('user_id', HARDCODED_USER_ID)
@@ -162,7 +163,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
 
   // Semester-level aggregated progress
   const semesterProgress = await getLessonProgressForScope(
-    supabase,
+    adminSupabase,
     currentSemLessonIds,
     HARDCODED_USER_ID
   )
