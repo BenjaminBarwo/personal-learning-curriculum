@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Quiz Engine** - Quiz rendering, all question types, attempt persistence (completed 2026-02-28)
 - [x] **Phase 5: Progress + Dashboard** - Lesson progress tracking, progress rings, semester unlock, "continue" logic (completed 2026-03-01)
 - [ ] **Phase 6: Seed Content** - Two complete hand-written lessons and all 7 pillars seeded; end-to-end validation
-- [ ] **Phase 7: Verification + Code Cleanup** - Phase 5 VERIFICATION.md, dead code removal, stale import fix (gap closure from audit)
+- [x] **Phase 7: Verification + Code Cleanup** - Phase 5 VERIFICATION.md, dead code removal, stale import fix (gap closure from audit) (completed 2026-03-01)
 
 ## Phase Details
 
@@ -142,5 +142,5 @@ Phases execute: 1 → 2 → 3 → 4 → 5 → 7 (verification cleanup) → 6 (se
 | 3. Lesson Content Pipeline | 2/2 | Complete   | 2026-02-28 |
 | 4. Quiz Engine | 2/2 | Complete   | 2026-03-01 |
 | 5. Progress + Dashboard | 2/2 | Complete   | 2026-03-01 |
-| 7. Verification + Cleanup | 0/1 | Planned | - |
+| 7. Verification + Cleanup | 1/1 | Complete   | 2026-03-01 |
 | 6. Seed Content | 0/TBD | Not started | - |
