@@ -1,34 +1,56 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { createClerkSupabaseClient } from '@/lib/supabase/client'
+import { HARDCODED_USER_ID } from '@/constants/user'
 
 interface MarkCompleteButtonProps {
   lessonId: string
   lessonSlug: string
+  initialCompleted?: boolean
 }
 
-export function MarkCompleteButton({ lessonId, lessonSlug }: MarkCompleteButtonProps) {
-  const [isCompleted, setIsCompleted] = useState(false)
+export function MarkCompleteButton({ lessonId, lessonSlug: _lessonSlug, initialCompleted }: MarkCompleteButtonProps) {
+  // createClerkSupabaseClient uses useSession() hook internally — MUST be called at component top level
+  const supabase = createClerkSupabaseClient()
+  const router = useRouter()
+
+  const [isCompleted, setIsCompleted] = useState(initialCompleted ?? false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   async function handleMarkComplete() {
     if (isCompleted || isLoading) return
 
     setIsLoading(true)
+    setErrorMessage(null)
     try {
-      // Placeholder — Phase 5 will wire this to Supabase progress mutation
-      console.log('Mark complete:', { lessonId, lessonSlug })
-      await new Promise<void>((resolve) => setTimeout(resolve, 300))
+      const { error } = await supabase
+        .from('progress')
+        .upsert(
+          {
+            user_id: HARDCODED_USER_ID,
+            lesson_id: lessonId,
+            status: 'completed' as const,
+            completed_at: new Date().toISOString(),
+            last_accessed_at: new Date().toISOString(),
+          },
+          { onConflict: 'user_id,lesson_id' }
+        )
+      if (error) throw error
       setIsCompleted(true)
-    } catch (error) {
-      console.error('Failed to mark lesson complete:', error)
+      router.refresh() // triggers RSC re-render so progress bars on parent pages update
+    } catch (err) {
+      console.error('Failed to mark lesson complete:', err)
+      setErrorMessage('Could not save progress. Please try again.')
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex justify-center mt-10 mb-2">
+    <div className="flex flex-col items-center mt-10 mb-2 gap-2">
       <button
         type="button"
         onClick={handleMarkComplete}
@@ -100,6 +122,11 @@ export function MarkCompleteButton({ lessonId, lessonSlug }: MarkCompleteButtonP
           </>
         )}
       </button>
+      {errorMessage && (
+        <p className="text-sm text-red-400" role="alert">
+          {errorMessage}
+        </p>
+      )}
     </div>
   )
 }

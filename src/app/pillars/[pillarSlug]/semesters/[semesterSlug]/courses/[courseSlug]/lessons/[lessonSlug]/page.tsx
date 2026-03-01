@@ -6,6 +6,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { buildBreadcrumbs } from '@/lib/navigation'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import { mdxComponents } from '@/lib/mdx-components'
+import { markLessonInProgress } from '@/lib/progress'
+import { HARDCODED_USER_ID } from '@/constants/user'
 import { LessonBody } from '@/components/lesson/LessonBody'
 import { LessonNavigation } from '@/components/lesson/LessonNavigation'
 import { MarkCompleteButton } from '@/components/lesson/MarkCompleteButton'
@@ -95,6 +97,19 @@ export default async function LessonPage({ params }: LessonPageProps) {
   }
 
   const lesson = lessonData as ActiveLesson
+
+  // Mark lesson as in_progress (fire-and-forget — does not block render)
+  // Preserves completed status if already completed
+  void markLessonInProgress(supabase, lesson.id, HARDCODED_USER_ID)
+
+  // Query current completion status to initialise MarkCompleteButton
+  const { data: progressData } = await supabase
+    .from('progress')
+    .select('status')
+    .eq('user_id', HARDCODED_USER_ID)
+    .eq('lesson_id', lesson.id)
+    .maybeSingle()
+  const isLessonCompleted = progressData?.status === 'completed'
 
   // Fetch quiz questions for this lesson
   const { data: questionsData } = await supabase
@@ -236,7 +251,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
         )}
 
         {/* Mark as complete */}
-        <MarkCompleteButton lessonId={lesson.id} lessonSlug={lessonSlug} />
+        <MarkCompleteButton lessonId={lesson.id} lessonSlug={lessonSlug} initialCompleted={isLessonCompleted} />
 
         {/* Lesson navigation */}
         <LessonNavigation
