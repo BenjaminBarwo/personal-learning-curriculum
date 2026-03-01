@@ -101,6 +101,7 @@ export interface Database {
           slug: string
           description: string | null
           display_order: number
+          manually_unlocked: boolean
           created_at: string
           updated_at: string
           deleted_at: string | null
@@ -112,6 +113,7 @@ export interface Database {
           slug: string
           description?: string | null
           display_order?: number
+          manually_unlocked?: boolean
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
@@ -123,6 +125,7 @@ export interface Database {
           slug?: string
           description?: string | null
           display_order?: number
+          manually_unlocked?: boolean
           created_at?: string
           updated_at?: string
           deleted_at?: string | null
@@ -594,6 +597,7 @@ export interface Database {
           slug: string
           description: string | null
           display_order: number
+          manually_unlocked: boolean
           created_at: string
           updated_at: string
           deleted_at: string | null
