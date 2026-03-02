@@ -298,7 +298,7 @@ This solved what is sometimes called the "bag of words" problem in neural sequen
 
 <Quiz questionId="d290f1ee-6c54-4b01-90e6-d701748f0855" />
 
-<DeepDive>
+<DeepDive title="Beyond the Basics: Positional Encoding and Transfer Learning">
 The positional encoding story is more interesting than it first appears. The original Vaswani et al. paper used sinusoidal positional encodings — fixed mathematical functions, not learned parameters. The intuition was that sine and cosine at different frequencies produce unique signatures that generalize to sequence lengths longer than any seen during training, because the functions are defined for any position. The model learns to read these signatures, not to memorize specific positions.
 
 But sinusoidal encoding is not the only approach, and modern models largely moved away from it. BERT introduced learned positional embeddings — trainable parameters for each position, just like word embeddings. This is simpler and often performs better when your training sequences don't exceed a fixed maximum length. GPT-2 and GPT-3 both use learned positional embeddings. The tradeoff is that learned embeddings don't generalize well beyond the positions seen during training, while sinusoidal encodings do.
@@ -577,7 +577,7 @@ The attention mechanism remains the most actively researched component of transf
 
 <Quiz questionId="e390f1ee-7c54-5b01-a0e6-e801748f0865" />
 
-<DeepDive>
+<DeepDive title="The Math Behind Attention: Scaling, Specialization, and Efficiency">
 The scaling factor 1/√d_k deserves more attention than it usually gets. When the dimension d_k is large (say 64 or 512), the dot products between query and key vectors can become very large in magnitude. This is a consequence of how dot products grow: the sum of d_k multiplied random values has variance proportional to d_k. Push these large values through softmax and you get a distribution that is extremely peaked — almost all the weight on a single position, with near-zero elsewhere. The gradient of a saturated softmax is tiny, making learning very slow. Dividing by √d_k keeps the dot products in a regime where softmax produces more even distributions and gradients flow well. The original paper noticed this empirically and the fix is elegant: one division operation that stabilizes the entire training dynamic.
 
 What do individual attention heads actually learn? Researchers have probed trained transformers by analyzing which positions each head attends to most strongly. The findings are striking: different heads reliably specialize in different linguistic functions. Some heads track syntactic dependencies (verbs attending to their subjects). Some track coreference (pronouns attending to the nouns they refer to). Some attend to adjacent tokens (local n-gram context). Some track semantic similarity across long distances. This specialization is not designed in — it emerges from training on language. The network discovers that distributing different types of pattern recognition across different heads is an efficient use of parameters.
