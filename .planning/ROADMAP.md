@@ -110,10 +110,11 @@ Plans:
   2. Two complete Pillar 1 lessons follow the full design template (Hook → ConceptBlocks → Quiz → DeepDive → Exercise → Takeaways) and render without errors
   3. A learner can open a lesson, answer quizzes, mark it complete, and see progress update on the dashboard — the entire learning loop works end-to-end
   4. Estimated reading time is displayed on lesson cards before a lesson is opened
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 06-01: TBD
+- [ ] 06-01-PLAN.md — Create seed SQL: 7 pillar upserts, Pillar 1 hierarchy (Foundations semester, 3 courses), 2 complete lessons with full MDX content and 10 quiz questions
+- [ ] 06-02-PLAN.md — Run seed SQL against production, end-to-end verification (human checkpoint)
 
 ### Phase 7: Verification + Code Cleanup
 **Goal**: Close all verification and code quality gaps from the v1.0 milestone audit — Phase 5 gets its VERIFICATION.md and dead code is removed
