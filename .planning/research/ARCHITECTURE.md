@@ -1,579 +1,964 @@
-# Architecture Patterns
+# Architecture Research
 
-**Domain:** Personal learning curriculum platform (Next.js 14+ / Supabase / MDX / Clerk)
-**Researched:** 2026-02-27
-**Confidence:** HIGH (Next.js official docs, verified patterns)
-
----
-
-## Recommended Architecture
-
-The platform has three distinct rendering concerns that map cleanly to Next.js App Router primitives:
-
-1. **Static shell** — navigation, layout, pillar chrome — server components, no data dependency
-2. **Data-dependent pages** — dashboard, course lists, lesson metadata — server components with async data fetch
-3. **Interactive lesson content** — quizzes, collapsible deep-dives, progress tracking — client components embedded inside server-rendered MDX output
-
-The key insight for this platform: MDX content is fetched from Supabase and compiled server-side, but the interactive elements *inside* that content (Quiz, DeepDive toggles) are client components. next-mdx-remote handles this split — the RSC variant compiles MDX on the server and injects client component references via RSC payload.
+**Domain:** Personal learning curriculum platform — v2.0 integration patterns
+**Researched:** 2026-03-02
+**Confidence:** HIGH (based on actual codebase inspection + official docs)
 
 ---
 
-## Component Boundaries
-
-| Component | Layer | Responsibility | Communicates With |
-|-----------|-------|----------------|-------------------|
-| `middleware.ts` | Edge | Clerk auth gate, redirects unauthenticated requests | Clerk SDK, Next.js routing |
-| `app/layout.tsx` | Server | Root HTML shell, Clerk provider, theme | ClerkProvider (client), ThemeProvider (client) |
-| `app/(app)/layout.tsx` | Server | Authenticated app shell, sidebar nav, pillar color tokens | UserNav (client), SidebarNav (client) |
-| `app/(app)/dashboard/page.tsx` | Server | Fetch all pillar progress for user, render overview | Supabase (server client), ProgressRings (client) |
-| `app/(app)/pillars/[pillarId]/layout.tsx` | Server | Fetch pillar metadata, pass as context to children | Supabase (server client) |
-| `app/(app)/pillars/[pillarId]/semesters/[semesterId]/courses/[courseId]/lessons/[lessonId]/page.tsx` | Server | Fetch lesson row + MDX string from Supabase, compile MDX, render | Supabase (server client), next-mdx-remote |
-| `LessonRenderer` | Server | Wraps compiled MDX output with lesson layout | MDX component map |
-| `<Quiz>` | Client | State machine for quiz attempts: idle → answering → submitted → complete | useActionState, Server Action (recordQuizScore) |
-| `<DeepDive>` | Client | Controlled collapse/expand with animation | useState |
-| `<Definition>` | Client | Hover/tap tooltip for domain terms | useState, Popover |
-| `ProgressRings` | Client | SVG rings animated on mount, reads progress from props | — |
-| `LessonProgressTracker` | Client | Fires "mark started" on mount, "mark complete" on CTA click | Server Action (markLessonProgress) |
-| `lib/supabase/server.ts` | Server-only | Creates Supabase client scoped to request with Clerk user_id injected | @supabase/supabase-js, Clerk auth() |
-| `lib/supabase/client.ts` | Client-only | Creates Supabase client for browser-side use (anon key) | @supabase/supabase-js |
-| `lib/data/` | Server-only | Data access functions wrapped in `React.cache()` | Supabase server client |
-| `app/actions/` | Server | Server Actions for mutations (progress, quiz scores) | Supabase server client, revalidatePath |
+> This document supersedes the v1.0 architecture research written on 2026-02-27.
+> Focus: how the three new v2.0 features (content generation CLI, FSRS, Clerk auth) attach to the existing architecture. Only integration points are documented here. The existing v1.0 patterns (lesson rendering pipeline, quiz engine, progress tracking, MDX component map) are stable and unchanged.
 
 ---
 
-## Route Structure
+## Existing Architecture — Confirmed State
 
+Before documenting integrations, this is what actually shipped in v1.0 (verified against src/). These facts constrain all integration decisions:
+
+**Actual route structure (no route groups used — flat routes):**
 ```
 app/
-├── layout.tsx                              # Root layout: <html>, Clerk provider
-├── (marketing)/                            # Route group: unauthenticated pages
-│   ├── layout.tsx                          # Marketing shell (no sidebar)
-│   └── page.tsx                            # Landing / sign-in redirect
-├── (app)/                                  # Route group: authenticated app
-│   ├── layout.tsx                          # App shell: sidebar, nav, auth check
-│   ├── dashboard/
-│   │   └── page.tsx                        # Pillar overview + "continue" card
-│   └── pillars/
-│       └── [pillarId]/
-│           ├── layout.tsx                  # Pillar color context
-│           ├── page.tsx                    # Semester list for pillar
-│           └── semesters/
-│               └── [semesterId]/
-│                   ├── page.tsx            # Course list for semester
-│                   └── courses/
-│                       └── [courseId]/
-│                           ├── page.tsx    # Lesson list for course
-│                           └── lessons/
-│                               └── [lessonId]/
-│                                   ├── page.tsx       # Lesson renderer
-│                                   └── loading.tsx    # Skeleton while MDX compiles
-├── api/
-│   └── webhooks/
-│       └── clerk/
-│           └── route.ts                    # Clerk webhook handler (user sync)
-lib/
-├── supabase/
-│   ├── server.ts                           # Server Supabase client (server-only)
-│   └── client.ts                           # Browser Supabase client (client-only)
-├── data/
-│   ├── pillars.ts                          # getPillars(), getPillarById()
-│   ├── semesters.ts                        # getSemestersByPillar()
-│   ├── courses.ts                          # getCoursesBySemester()
-│   ├── lessons.ts                          # getLessonById(), getLessonsByCourse()
-│   └── progress.ts                         # getUserProgress(), getLessonProgress()
-├── mdx/
-│   └── components.tsx                      # Custom MDX component map
-└── actions/
-    ├── progress.ts                         # markLessonStarted(), markLessonComplete()
-    └── quiz.ts                             # recordQuizAttempt()
-components/
-├── lesson/
-│   ├── LessonRenderer.tsx                  # Server: wraps MDX output
-│   ├── Quiz.tsx                            # Client: interactive quiz state machine
-│   ├── DeepDive.tsx                        # Client: collapsible section
-│   ├── Definition.tsx                      # Client: hover tooltip
-│   ├── Hook.tsx                            # Server: styled wrapper (no interactivity)
-│   ├── ConceptBlock.tsx                    # Server: styled wrapper
-│   ├── Exercise.tsx                        # Server: styled wrapper
-│   └── Takeaways.tsx                       # Server: styled list
-├── navigation/
-│   ├── Sidebar.tsx                         # Client: usePathname for active state
-│   ├── Breadcrumbs.tsx                     # Client: usePathname
-│   └── PillarNav.tsx                       # Client: pillar color tokens
-├── dashboard/
-│   ├── ProgressRings.tsx                   # Client: SVG animation
-│   ├── ContinueCard.tsx                    # Server: last visited lesson
-│   └── PillarCard.tsx                      # Server: pillar summary
-└── ui/                                     # Shared primitives: Button, Badge, etc.
+├── layout.tsx                              # Root: ClerkProvider, ThemeProvider, BreadcrumbProvider, Header
+├── page.tsx                                # Dashboard (force-dynamic)
+├── not-found.tsx
+├── error.tsx
+└── pillars/[pillarSlug]/
+    ├── page.tsx
+    └── semesters/[semesterSlug]/
+        ├── page.tsx
+        └── courses/[courseSlug]/
+            ├── page.tsx
+            └── lessons/[lessonSlug]/
+                └── page.tsx
 ```
 
----
-
-## Data Flow
-
-### Lesson Page — Primary Flow
-
-```
-User navigates to /pillars/[pillarId]/semesters/[semId]/courses/[courseId]/lessons/[lessonId]
-
-  1. middleware.ts
-     - Clerk validates session token
-     - Extracts userId, attaches to request headers
-     - Redirects to /sign-in if unauthenticated
-
-  2. app/(app)/pillars/[pillarId]/layout.tsx (Server Component)
-     - Calls getPillarById(pillarId) via lib/data/pillars.ts
-     - Passes pillar.color_token down as CSS custom property via <style>
-
-  3. app/(app)/[...]/lessons/[lessonId]/page.tsx (Server Component)
-     - Calls getLessonById(lessonId) → returns { title, mdx_content, estimated_minutes, ... }
-     - Calls getUserLessonProgress(userId, lessonId) → returns { started_at, completed_at }
-     - Passes both to <LessonRenderer>
-
-  4. LessonRenderer (Server Component)
-     - Calls next-mdx-remote/rsc: compileMDX({ source: lesson.mdx_content, components: mdxComponents })
-     - Returns rendered React tree with client component islands
-
-  5. RSC Payload sent to client
-     - Static HTML shells (Hook, ConceptBlock, Takeaways) included in HTML
-     - <Quiz>, <DeepDive>, <Definition> hydrated as client component islands
-
-  6. LessonProgressTracker (Client Component)
-     - useEffect on mount → calls Server Action markLessonStarted(lessonId)
-     - "Mark Complete" button → calls Server Action markLessonComplete(lessonId)
-     - Server Action calls revalidatePath('/dashboard') to update progress rings
+**Middleware (current — no route protection active):**
+```typescript
+// middleware.ts — currently bare: no routes protected
+import { clerkMiddleware } from '@clerk/nextjs/server'
+export default clerkMiddleware()
 ```
 
-### Quiz Submission Flow
+**Auth pattern (current — hardcoded user, no real auth gate):**
+```typescript
+// constants/user.ts
+export const HARDCODED_USER_ID = 'user_3AGlLR1a07HdOR8G8mECoqPUUfd'
 
-```
-User selects answer and submits in <Quiz> (Client Component)
-
-  1. Client: useActionState(recordQuizAttempt, initialState)
-  2. On submit: calls Server Action recordQuizAttempt({ lessonId, questionId, answer })
-  3. Server Action:
-     - Reads userId from auth() (Clerk)
-     - Inserts into quiz_attempts table via Supabase server client
-     - Returns { correct: boolean, explanation: string }
-  4. useActionState receives return value → client updates UI with feedback
-  5. No revalidation needed (quiz state is local; progress table updated separately)
+// All server actions use HARDCODED_USER_ID, not auth()
+// lib/actions/progress.ts uses createAdminSupabaseClient() + HARDCODED_USER_ID
 ```
 
-### Dashboard Data Flow
-
-```
-User navigates to /dashboard
-
-  1. dashboard/page.tsx (Server Component, async)
-     - Calls getUserPillarProgress(userId) — single query with aggregation
-     - Calls getLastVisitedLesson(userId) — for "continue" card
-     - Renders <ProgressRings data={progress}> (Client: animation)
-     - Renders <ContinueCard lesson={lastLesson}> (Server)
-     - Renders <PillarCard pillar={p}> for each pillar (Server)
-```
-
----
-
-## Supabase Access Patterns
-
-### Server Client (for Server Components and Server Actions)
-
-Clerk is the auth provider; Supabase uses JWT verification or a service role key with RLS bypass for trusted server-side mutations.
-
-**Pattern A — RLS with Clerk JWT (recommended for reads):**
+**Supabase client pattern (actual):**
 ```typescript
 // lib/supabase/server.ts
-import 'server-only'
-import { createClient } from '@supabase/supabase-js'
-import { auth } from '@clerk/nextjs/server'
-
-export async function createServerSupabaseClient() {
-  const { getToken } = await auth()
-  // Clerk can issue a Supabase-compatible JWT if configured
-  // OR use service role with manual user_id filtering
-  const token = await getToken({ template: 'supabase' })
-
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      global: {
-        headers: { Authorization: `Bearer ${token}` },
-      },
-    }
-  )
-}
+export async function createServerSupabaseClient()   // Clerk JWT via accessToken callback
+export function createAdminSupabaseClient()          // Service role key — bypasses RLS
+// All mutations currently use createAdminSupabaseClient() + HARDCODED_USER_ID
+// All reads use createServerSupabaseClient() (anon key + Clerk JWT)
 ```
 
-**Pattern B — Service role + explicit user_id filter (simpler for single user now):**
-```typescript
-// lib/supabase/server.ts
-import 'server-only'
-import { createClient } from '@supabase/supabase-js'
-
-export function createServerSupabaseClient() {
-  return createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!, // never expose to client
-  )
-}
-
-// In data access functions:
-export const getUserProgress = cache(async (userId: string, lessonId: string) => {
-  const supabase = createServerSupabaseClient()
-  return supabase
-    .from('user_lesson_progress')
-    .select('*')
-    .eq('user_id', userId)
-    .eq('lesson_id', lessonId)
-    .single()
-})
+**Quiz engine integration point:**
+```
+Quiz.tsx (client) → QuizProvider context → persistQuizAttempt() server action
+→ createAdminSupabaseClient() → quiz_attempts table
+quiz_attempts: (user_id, question_id, lesson_id, selected_answer, correct_answer, is_correct, time_spent_seconds, attempt_number)
 ```
 
-**IMPORTANT:** Pattern A scales to multi-user with RLS. Pattern B requires explicit `user_id` filtering at every query call. Use Pattern A from the start to avoid security rewrites.
+**Database schema (11 tables, deployed):**
+- Content: `pillars`, `semesters`, `courses`, `lessons`, `lesson_versions`, `quiz_questions`, `vocabulary`, `lesson_vocabulary`, `lesson_connections`
+- User data: `progress`, `quiz_attempts`
+- No FSRS tables exist yet
 
-### React.cache for Deduplication
+---
 
-```typescript
-// lib/data/lessons.ts
-import { cache } from 'react'
+## System Overview — v2.0
 
-export const getLessonById = cache(async (lessonId: string) => {
-  const supabase = createServerSupabaseClient()
-  const { data } = await supabase
-    .from('lessons')
-    .select('id, title, mdx_content, estimated_minutes, content_version')
-    .eq('id', lessonId)
-    .single()
-  return data
-})
-// Multiple Server Components calling getLessonById with same ID
-// within the same request → single database query (React.cache memoizes)
+```
+┌──────────────────────────────────────────────────────────────────────┐
+│                      EXTERNAL (CLI, out of Next.js)                  │
+│  ┌───────────────────────────────────────────────────────────────┐   │
+│  │  Content Generation CLI (Node.js, standalone)                 │   │
+│  │  Orchestrator → Research sub-agents → MDX writer agent        │   │
+│  │  → validateMDX() → Supabase admin client → lessons table      │   │
+│  └───────────────────────────────────────────────────────────────┘   │
+└──────────────────────────────────────────────────────────────────────┘
+          ↓ writes MDX rows directly to Supabase
+┌──────────────────────────────────────────────────────────────────────┐
+│                    Next.js App (existing + new)                       │
+│                                                                        │
+│  ┌────────────────┐  ┌────────────────┐  ┌────────────────────────┐  │
+│  │  middleware.ts │  │  /sign-in page │  │  /review page (NEW)    │  │
+│  │  (MODIFIED)    │  │  (NEW)         │  │  Flashcard review flow  │  │
+│  │  clerkMiddlew  │  │  <SignIn />     │  │  FSRS rating UI        │  │
+│  │  + route guard │  │  Clerk comp    │  │                        │  │
+│  └────────────────┘  └────────────────┘  └────────────────────────┘  │
+│                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │  Dashboard (page.tsx — MODIFIED)                                │  │
+│  │  + FSRS widget: "X cards due today" → link to /review           │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │  Existing lesson flow (unchanged)                               │  │
+│  │  LessonPage → MDXRemote → Quiz → persistQuizAttempt()          │  │
+│  │  quiz_attempts written → FSRS scheduler reads these later       │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+│                                                                        │
+│  ┌─────────────────────────────────────────────────────────────────┐  │
+│  │  Supabase                                                       │  │
+│  │  Existing: 11 tables + 6 views + RLS                           │  │
+│  │  New (FSRS): fsrs_cards, fsrs_review_logs (2 new tables)       │  │
+│  └─────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## MDX Rendering Pipeline
+## Feature 1: Clerk Sign-In UI + Protected Routes
 
-### The Critical Constraint
+### What Exists vs What Changes
 
-`@next/mdx` (filesystem) vs `next-mdx-remote` (from string/database): This project stores MDX in Supabase, so `@next/mdx` is irrelevant. Use `next-mdx-remote/rsc` which compiles MDX as a Server Component.
+**Existing (unchanged):**
+- `ClerkProvider` wraps the root layout — Clerk is already installed and configured
+- `createServerSupabaseClient()` already injects Clerk JWT via `accessToken` callback
+- RLS policies already use `current_setting('request.jwt.claims', true)::json->>'sub'`
+- `HARDCODED_USER_ID` exists as a bridge constant
 
-### Pipeline
+**What needs to change:**
 
-```
-Supabase: lessons.mdx_content (TEXT column)
-    ↓
-Server Component: getLessonById(id) → raw MDX string
-    ↓
-next-mdx-remote/rsc: compileMDX({ source, components, options })
-    ↓
-React tree: Server component shells + Client component references
-    ↓
-RSC Payload → Browser → Hydration of interactive islands
-```
+**1. `middleware.ts` — add route protection**
 
-### MDX Component Map Pattern
+Current middleware does nothing. Replace with route-protecting middleware:
 
 ```typescript
-// lib/mdx/components.tsx
-// Server components — no 'use client' directive
-import { Hook } from '@/components/lesson/Hook'
-import { ConceptBlock } from '@/components/lesson/ConceptBlock'
-import { Exercise } from '@/components/lesson/Exercise'
-import { Takeaways } from '@/components/lesson/Takeaways'
+// src/middleware.ts (MODIFIED)
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 
-// Client components — marked 'use client' in their own file
-import { Quiz } from '@/components/lesson/Quiz'
-import { DeepDive } from '@/components/lesson/DeepDive'
-import { Definition } from '@/components/lesson/Definition'
+const isPublicRoute = createRouteMatcher([
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+])
 
-export const mdxComponents = {
-  Hook,
-  ConceptBlock,
-  Exercise,
-  Takeaways,
-  Quiz,       // Client island — state for quiz attempt
-  DeepDive,   // Client island — collapse/expand state
-  Definition, // Client island — tooltip state
+export default clerkMiddleware(async (auth, req) => {
+  if (!isPublicRoute(req)) {
+    await auth.protect()
+  }
+})
+
+export const config = {
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
 }
 ```
 
-### Lesson Page Implementation
+**2. `app/sign-in/[[...sign-in]]/page.tsx` — new file**
+
+Clerk uses the optional catch-all route pattern:
 
 ```typescript
-// app/(app)/.../lessons/[lessonId]/page.tsx
-import { compileMDX } from 'next-mdx-remote/rsc'
-import { getLessonById } from '@/lib/data/lessons'
-import { mdxComponents } from '@/lib/mdx/components'
-import { auth } from '@clerk/nextjs/server'
+// src/app/sign-in/[[...sign-in]]/page.tsx (NEW)
+import { SignIn } from '@clerk/nextjs'
 
-export default async function LessonPage({ params }: PageProps<'/.../.../lessons/[lessonId]'>) {
-  const { userId } = await auth()
-  const { lessonId } = await params
-
-  const lesson = await getLessonById(lessonId)
-
-  const { content } = await compileMDX({
-    source: lesson.mdx_content,
-    components: mdxComponents,
-    options: {
-      mdxOptions: {
-        remarkPlugins: [],
-        rehypePlugins: [],
-      }
-    }
-  })
-
+export default function SignInPage() {
   return (
-    <article className="lesson-content">
-      <LessonHeader lesson={lesson} />
-      <div className="prose dark:prose-invert">
-        {content}
-      </div>
-      <LessonProgressTracker lessonId={lessonId} userId={userId} />
-    </article>
+    <div className="flex min-h-[80vh] items-center justify-center">
+      <SignIn />
+    </div>
   )
 }
 ```
 
----
+**3. Environment variables — add to `.env.local` and Vercel**
 
-## Server vs Client Component Decision Matrix
-
-| Component | Server or Client | Reason |
-|-----------|-----------------|--------|
-| `page.tsx` (lesson) | Server | Fetches MDX from DB, no browser APIs |
-| `layout.tsx` (all) | Server | Static chrome, data fetch for nav items |
-| `LessonRenderer` | Server | Wraps compileMDX output |
-| `Hook` | Server | Display-only, styled wrapper |
-| `ConceptBlock` | Server | Display-only |
-| `Exercise` | Server | Display-only |
-| `Takeaways` | Server | Display-only |
-| `Quiz` | **Client** | useState for selection, answer checking, feedback |
-| `DeepDive` | **Client** | useState for open/closed |
-| `Definition` | **Client** | useState for tooltip visibility |
-| `LessonProgressTracker` | **Client** | useEffect to fire "mark started" on mount |
-| `ProgressRings` | **Client** | SVG animation, requestAnimationFrame |
-| `Breadcrumbs` | **Client** | usePathname hook |
-| `SidebarNav` | **Client** | usePathname for active state |
-| `ProgressRings` | **Client** | Animation on mount |
-
-**Rule of thumb:** If it only renders data → Server. If it uses useState, useEffect, event handlers, or browser APIs → Client.
-
----
-
-## Auth Integration (Clerk + Supabase)
-
-```
-Browser Request
-    ↓
-middleware.ts (Edge Runtime)
-    - clerkMiddleware() validates session JWT
-    - Protects /dashboard, /pillars/* routes
-    - Public: /, /sign-in, /sign-up, /api/webhooks/*
-    ↓
-Server Component / Server Action
-    - const { userId } = await auth()   // Clerk server helper
-    - userId passed to data access functions
-    - Supabase queries filter by user_id
-    ↓
-Supabase RLS (when Pattern A is used)
-    - JWT from Clerk validated by Supabase
-    - auth.uid() matches user_id on rows
+```bash
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
 ```
 
-**Clerk Webhook for User Sync:**
-The `app/api/webhooks/clerk/route.ts` handler listens for `user.created` events to insert a user row in Supabase. This is required if Supabase has a `users` table that other tables foreign-key against. If using Clerk `userId` strings directly as `user_id` everywhere (no FK), this webhook is optional.
+**4. Server actions — replace `HARDCODED_USER_ID` with `auth()`**
 
----
-
-## State Management Recommendation
-
-**Use Zustand** (not React Context) for cross-component state, but keep the scope minimal.
-
-The only cross-component state this platform needs right now:
-- Pillar color tokens (can be CSS variables — no JS state needed)
-- Current lesson progress optimistic update (can stay in component with `useActionState`)
-- Theme (dark/light) — one global context is fine
-
-**Verdict:** React Context is sufficient for theme. Zustand is not needed in Phase 1. Defer the decision — start with `useActionState` + Server Actions for mutations, which keeps state local to the component making the mutation.
-
----
-
-## Patterns to Follow
-
-### Pattern 1: Data Access Layer with React.cache
-
-Keep all Supabase queries in `lib/data/`. Wrap with `React.cache()` so multiple Server Components in the same request share the result without extra queries.
+All server actions currently use `HARDCODED_USER_ID`. Once auth is wired, replace with dynamic user ID:
 
 ```typescript
-// lib/data/progress.ts
-import { cache } from 'react'
-import 'server-only'
-
-export const getUserLessonProgress = cache(async (userId: string, lessonId: string) => {
-  // ... Supabase query
-})
-```
-
-### Pattern 2: Mutations via Server Actions
-
-Never call Supabase directly from Client Components. All mutations go through `app/actions/*.ts` files with `'use server'` at the top. This keeps `SUPABASE_SERVICE_ROLE_KEY` server-side only.
-
-```typescript
-// app/actions/progress.ts
+// src/lib/actions/progress.ts (MODIFIED)
 'use server'
 import { auth } from '@clerk/nextjs/server'
-import { revalidatePath } from 'next/cache'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
 
 export async function markLessonComplete(lessonId: string) {
   const { userId } = await auth()
-  // ... Supabase upsert
-  revalidatePath('/dashboard')
+  if (!userId) throw new Error('Unauthenticated')   // middleware already blocks, but be explicit
+
+  const supabase = createAdminSupabaseClient()
+  // ... rest unchanged, replace HARDCODED_USER_ID with userId
 }
 ```
 
-### Pattern 3: Suspense for Streaming Lesson Content
+**5. Data-fetching pages — replace `HARDCODED_USER_ID` with `auth()`**
 
-MDX compilation takes time. Wrap the lesson content in `<Suspense>` so the lesson header and metadata render immediately while MDX compiles.
+`app/page.tsx` (dashboard) and all pages that pass `HARDCODED_USER_ID` to progress queries must call `await auth()` instead. The `getLessonProgressForScope()` and `getContinueLesson()` functions already accept `userId` as a parameter — no signature change needed, only the call site.
 
-```typescript
-// The loading.tsx file handles the Suspense boundary automatically for full page
-// For sub-component streaming, use explicit Suspense:
-<Suspense fallback={<LessonContentSkeleton />}>
-  <LessonContent lessonId={lessonId} />
-</Suspense>
+### Integration Points: Clerk Auth
+
+| Touch Point | Type | Change Required |
+|-------------|------|-----------------|
+| `src/middleware.ts` | MODIFY | Add `createRouteMatcher` + `auth.protect()` |
+| `src/app/sign-in/[[...sign-in]]/page.tsx` | NEW | Clerk `<SignIn />` component |
+| `src/constants/user.ts` | DELETE or KEEP | Remove `HARDCODED_USER_ID` import sites when auth is wired; keep file with a comment |
+| `src/lib/actions/progress.ts` | MODIFY | Replace `HARDCODED_USER_ID` with `await auth()` |
+| `src/app/page.tsx` | MODIFY | Replace `HARDCODED_USER_ID` with `await auth()` |
+| `src/app/pillars/.../lessons/.../page.tsx` | MODIFY | Replace `HARDCODED_USER_ID` with `await auth()` |
+| `.env.local` + Vercel env vars | MODIFY | Add three Clerk redirect env vars |
+
+### Data Flow: Auth
+
+```
+Browser requests /pillars/[pillarSlug]/...
+    ↓
+middleware.ts — clerkMiddleware() validates Clerk session JWT
+    - isPublicRoute(req)? No → auth.protect()
+    - Unauthenticated → redirect to /sign-in
+    - Authenticated → request proceeds
+    ↓
+Server Component (page.tsx)
+    const { userId } = await auth()   // Clerk server helper
+    userId passed to progress queries + admin client mutations
+    ↓
+createAdminSupabaseClient() — service role, bypasses RLS
+    All mutations (.from('progress').upsert({ user_id: userId, ... }))
 ```
 
-### Pattern 4: Route Group for Auth Boundary
+---
 
-Use `(app)` route group to apply a single authenticated layout across all protected routes. The layout can verify the Clerk session and redirect if missing, as a defense-in-depth layer beyond middleware.
+## Feature 2: FSRS Spaced Repetition
 
-### Pattern 5: Pillar Color System via CSS Custom Properties
+### Schema Design (New Tables)
 
-Inject pillar colors at the layout level as CSS variables, not JS state. The `[pillarId]/layout.tsx` Server Component sets `style={{ '--pillar-color': pillar.color_hex }}` on a wrapper div. All child components use `color: var(--pillar-color)`. Zero JavaScript, zero context.
+FSRS requires storing per-card state (one card = one quiz question, per user). Two new tables:
+
+```sql
+-- Migration: 00004_fsrs_tables.sql
+
+-- fsrs_cards: current FSRS state for each (user, question) pair
+-- One row per user per quiz question. Created on first review.
+CREATE TABLE fsrs_cards (
+  id              UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id         TEXT        NOT NULL,           -- Clerk user ID
+  question_id     UUID        NOT NULL REFERENCES quiz_questions(id),
+  -- ts-fsrs Card fields (mirrors Card type from ts-fsrs library)
+  due             TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  stability       FLOAT       NOT NULL DEFAULT 0,
+  difficulty      FLOAT       NOT NULL DEFAULT 0,
+  elapsed_days    INTEGER     NOT NULL DEFAULT 0,
+  scheduled_days  INTEGER     NOT NULL DEFAULT 0,
+  reps            INTEGER     NOT NULL DEFAULT 0,
+  lapses          INTEGER     NOT NULL DEFAULT 0,
+  state           TEXT        NOT NULL DEFAULT 'New'
+                              CHECK (state IN ('New', 'Learning', 'Review', 'Relearning')),
+  last_review     TIMESTAMPTZ,
+  created_at      TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  updated_at      TIMESTAMPTZ DEFAULT NOW() NOT NULL,
+  UNIQUE(user_id, question_id)   -- one card per user per question
+);
+
+-- fsrs_review_logs: immutable log of every review rating
+-- Required for FSRS parameter optimization (ts-fsrs optimizer)
+CREATE TABLE fsrs_review_logs (
+  id              UUID        DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id         TEXT        NOT NULL,
+  question_id     UUID        NOT NULL REFERENCES quiz_questions(id),
+  rating          TEXT        NOT NULL CHECK (rating IN ('Again', 'Hard', 'Good', 'Easy')),
+  state           TEXT        NOT NULL,           -- Card state before this review
+  due             TIMESTAMPTZ NOT NULL,           -- When card was due
+  stability       FLOAT       NOT NULL,
+  difficulty      FLOAT       NOT NULL,
+  elapsed_days    INTEGER     NOT NULL,
+  scheduled_days  INTEGER     NOT NULL,
+  review          TIMESTAMPTZ NOT NULL,           -- When review happened
+  created_at      TIMESTAMPTZ DEFAULT NOW() NOT NULL
+  -- NO updated_at — append-only like quiz_attempts
+);
+
+-- Indexes
+CREATE INDEX idx_fsrs_cards_user_id ON fsrs_cards(user_id);
+CREATE INDEX idx_fsrs_cards_user_due ON fsrs_cards(user_id, due);  -- critical for "due today" query
+CREATE INDEX idx_fsrs_review_logs_user_id ON fsrs_review_logs(user_id);
+
+-- Updated_at trigger for fsrs_cards (updates on every review)
+CREATE TRIGGER trg_fsrs_cards_updated_at
+  BEFORE UPDATE ON fsrs_cards
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- RLS
+ALTER TABLE fsrs_cards ENABLE ROW LEVEL SECURITY;
+ALTER TABLE fsrs_review_logs ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view own fsrs cards"
+  ON fsrs_cards FOR SELECT
+  USING (user_id = (SELECT current_setting('request.jwt.claims', true)::json->>'sub'));
+
+CREATE POLICY "Users can insert own fsrs cards"
+  ON fsrs_cards FOR INSERT
+  WITH CHECK (user_id = (SELECT current_setting('request.jwt.claims', true)::json->>'sub'));
+
+CREATE POLICY "Users can update own fsrs cards"
+  ON fsrs_cards FOR UPDATE
+  USING (user_id = (SELECT current_setting('request.jwt.claims', true)::json->>'sub'))
+  WITH CHECK (user_id = (SELECT current_setting('request.jwt.claims', true)::json->>'sub'));
+
+CREATE POLICY "Users can view own fsrs review logs"
+  ON fsrs_review_logs FOR SELECT
+  USING (user_id = (SELECT current_setting('request.jwt.claims', true)::json->>'sub'));
+
+CREATE POLICY "Users can insert own fsrs review logs"
+  ON fsrs_review_logs FOR INSERT
+  WITH CHECK (user_id = (SELECT current_setting('request.jwt.claims', true)::json->>'sub'));
+```
+
+### FSRS Library Integration: ts-fsrs
+
+The TypeScript FSRS implementation is `ts-fsrs` (npm package, actively maintained as of 2026, ES module + CommonJS support).
+
+**Core API:**
+```typescript
+import { createEmptyCard, fsrs, Rating, type Card, type ReviewLog } from 'ts-fsrs'
+
+// Create a new card for a question the user has never reviewed
+const newCard: Card = createEmptyCard()
+
+// Schedule next review after user rates 'Good'
+const f = fsrs()
+const scheduling = f.repeat(newCard, new Date())
+const result = scheduling[Rating.Good]   // { card: Card, log: ReviewLog }
+
+// result.card = updated Card to save back to fsrs_cards
+// result.log  = ReviewLog to save to fsrs_review_logs
+```
+
+**Card type maps directly to `fsrs_cards` columns.** The ts-fsrs `Card` type and `ReviewLog` type match the schema columns defined above field-for-field.
+
+### FSRS Server Actions
+
+```typescript
+// src/lib/actions/fsrs.ts (NEW)
+'use server'
+import { auth } from '@clerk/nextjs/server'
+import { fsrs, createEmptyCard, Rating, type Rating as RatingType } from 'ts-fsrs'
+import { createAdminSupabaseClient } from '@/lib/supabase/server'
+
+export async function submitFsrsReview(questionId: string, rating: RatingType) {
+  const { userId } = await auth()
+  if (!userId) throw new Error('Unauthenticated')
+
+  const supabase = createAdminSupabaseClient()
+  const f = fsrs()
+  const now = new Date()
+
+  // 1. Fetch or create the card for this (user, question) pair
+  const { data: existing } = await supabase
+    .from('fsrs_cards')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('question_id', questionId)
+    .maybeSingle()
+
+  const currentCard = existing
+    ? mapRowToCard(existing)
+    : createEmptyCard(now)
+
+  // 2. Schedule — get result for user's chosen rating
+  const scheduling = f.repeat(currentCard, now)
+  const { card: nextCard, log: reviewLog } = scheduling[rating]
+
+  // 3. Upsert the updated card state
+  await supabase.from('fsrs_cards').upsert(
+    { user_id: userId, question_id: questionId, ...mapCardToRow(nextCard) },
+    { onConflict: 'user_id,question_id' }
+  )
+
+  // 4. Append review log
+  await supabase.from('fsrs_review_logs').insert({
+    user_id: userId,
+    question_id: questionId,
+    rating: Rating[rating],
+    ...mapReviewLogToRow(reviewLog),
+  })
+}
+
+export async function getDueCardCount(userId: string): Promise<number> {
+  const supabase = createAdminSupabaseClient()
+  const { count } = await supabase
+    .from('fsrs_cards')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+    .lte('due', new Date().toISOString())
+  return count ?? 0
+}
+
+export async function getDueCards(userId: string) {
+  const supabase = createAdminSupabaseClient()
+  const { data } = await supabase
+    .from('fsrs_cards')
+    .select(`
+      id,
+      question_id,
+      due,
+      state,
+      quiz_questions (
+        question_text,
+        question_type,
+        correct_answer,
+        explanation,
+        options,
+        accepted_answers,
+        lesson_id
+      )
+    `)
+    .eq('user_id', userId)
+    .lte('due', new Date().toISOString())
+    .order('due', { ascending: true })
+    .limit(50)
+  return data ?? []
+}
+```
+
+### Seeding FSRS Cards from Quiz History
+
+The `quiz_attempts` table already has every quiz answer from v1.0. FSRS needs to be bootstrapped from this history rather than starting from zero. A one-time seeding script converts quiz history into initial FSRS card states:
+
+```typescript
+// scripts/seed-fsrs-from-history.ts (NEW — CLI script, not Next.js)
+// Run once: npx tsx scripts/seed-fsrs-from-history.ts
+import { createAdminSupabaseClient } from '../src/lib/supabase/server'
+import { fsrs, createEmptyCard, Rating } from 'ts-fsrs'
+
+// Fetch all quiz_attempts ordered by created_at (chronological)
+// For each unique (user_id, question_id), replay answers through FSRS
+// Insert resulting Card state into fsrs_cards
+```
+
+### FSRS Dashboard Widget (Modified Page)
+
+The dashboard page (`app/page.tsx`) is a Server Component. Add the due count query and render a widget:
+
+```typescript
+// app/page.tsx (MODIFIED — add to existing fetch block)
+const { userId } = await auth()
+const dueCount = await getDueCardCount(userId)
+
+// In JSX — add above pillar grid:
+{dueCount > 0 && (
+  <Link href="/review">
+    <div className="rounded-xl p-5 bg-surface-card border border-border-subtle">
+      <p className="text-lg font-semibold">{dueCount} cards due for review</p>
+      <p className="text-sm text-text-secondary mt-1">Strengthen your retention</p>
+    </div>
+  </Link>
+)}
+```
+
+### FSRS Review Page (New Route)
+
+```
+app/review/
+├── page.tsx        # Server: fetch due cards, pass to client
+└── loading.tsx     # Skeleton while cards load
+```
+
+**Data flow for review page:**
+```
+/review
+  ↓
+page.tsx (Server Component)
+  - const { userId } = await auth()
+  - const dueCards = await getDueCards(userId)  — fetches from fsrs_cards + quiz_questions join
+  - passes dueCards to <ReviewSession cards={dueCards} />
+  ↓
+ReviewSession (Client Component)
+  - Manages flashcard state: currentIndex, showAnswer toggle
+  - On rating click (Again/Hard/Good/Easy):
+    → calls submitFsrsReview(questionId, rating) server action
+    → advances to next card
+  - On completion: shows summary and link back to dashboard
+```
+
+### Integration Points: FSRS
+
+| Touch Point | Type | Change Required |
+|-------------|------|-----------------|
+| Supabase migration `00004_fsrs_tables.sql` | NEW | `fsrs_cards` + `fsrs_review_logs` tables + RLS + indexes |
+| `src/types/database.types.ts` | MODIFY | Add `fsrs_cards` and `fsrs_review_logs` table types |
+| `src/lib/actions/fsrs.ts` | NEW | `submitFsrsReview()`, `getDueCardCount()`, `getDueCards()` |
+| `src/app/review/page.tsx` | NEW | Server Component — fetch due cards, render client review session |
+| `src/components/fsrs/ReviewSession.tsx` | NEW | Client Component — flashcard UI with rating buttons |
+| `src/app/page.tsx` | MODIFY | Add due count query + widget UI |
+| `scripts/seed-fsrs-from-history.ts` | NEW | One-time CLI script to bootstrap FSRS from quiz history |
+| `package.json` | MODIFY | Add `ts-fsrs` dependency |
+
+---
+
+## Feature 3: Content Generation CLI Pipeline
+
+### Architecture: Standalone CLI (not a Next.js route)
+
+The content generation pipeline is a **standalone Node.js CLI tool**, not a Next.js API route or server action. This is the correct design because:
+- Generation takes 30-120 seconds per lesson (Claude API + sub-agent research)
+- It is triggered manually by the platform author, not by users
+- It uses the same Supabase admin client the Next.js app uses, just from a Node.js process
+- No HTTP server, no streaming to a browser — just a script that writes to Supabase
+
+```
+scripts/
+├── generate-lesson.ts       # CLI entry point: npx tsx scripts/generate-lesson.ts
+├── agents/
+│   ├── orchestrator.ts      # Coordinates research → MDX → seed flow
+│   ├── research-agent.ts    # Uses Claude API to research a topic deeply
+│   └── writer-agent.ts      # Uses Claude API to write MDX from research notes
+├── lib/
+│   ├── claude-client.ts     # Configured @anthropic-ai/sdk client
+│   ├── validate-mdx.ts      # Validates MDX compiles before DB insert
+│   └── seed-lesson.ts       # Supabase upsert with versioning trigger
+└── templates/
+    └── lesson-prompt.ts     # System prompt and MDX structure template
+```
+
+### CLI Tool Internal Flow
+
+```
+npx tsx scripts/generate-lesson.ts --pillar 2 --course "distributed-systems" --lesson "cap-theorem"
+    ↓
+orchestrator.ts
+  1. Resolve target lesson ID from Supabase (pillar → semester → course → lesson slug)
+  2. Spawn research-agent: "Research CAP theorem thoroughly..."
+     → Claude API (claude-opus-4-6, extended thinking if needed)
+     → Returns structured research notes: key concepts, examples, misconceptions
+  3. Pass research notes to writer-agent: "Write an MDX lesson from these notes..."
+     → Claude API (claude-sonnet-4-6)
+     → System prompt includes full lesson template (Hook → ConceptBlock → Quiz → DeepDive → Exercise → Takeaways)
+     → Returns raw MDX string
+  4. validateMDX(mdxString)
+     → Attempts compileMDX on the generated MDX
+     → If error: retry writer-agent with error as context (up to 3 attempts)
+     → If valid: proceed
+  5. seed-lesson.ts: upsert to Supabase
+     → lessons table: UPDATE mdx_content, content_version++
+     → lesson_versions table: INSERT new row (for rollback)
+     → quiz_questions table: INSERT generated quiz questions
+    ↓
+Console output: "Lesson written: [lesson name] v[content_version]"
+```
+
+### Claude API Client Setup
+
+```typescript
+// scripts/lib/claude-client.ts (NEW)
+import Anthropic from '@anthropic-ai/sdk'
+
+export const claude = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+})
+
+// Research agent: use opus for deep research quality
+export async function researchTopic(topic: string, context: string): Promise<string> {
+  const message = await claude.messages.create({
+    model: 'claude-opus-4-6',
+    max_tokens: 8192,
+    messages: [
+      {
+        role: 'user',
+        content: `Research this topic deeply for a lesson: ${topic}\nContext: ${context}`
+      }
+    ]
+  })
+  return message.content[0].type === 'text' ? message.content[0].text : ''
+}
+
+// Writer agent: use sonnet for MDX generation (faster, cheaper, still high quality)
+export async function writeLessonMDX(research: string, lessonTitle: string): Promise<string> {
+  const message = await claude.messages.create({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 16384,
+    system: LESSON_WRITING_SYSTEM_PROMPT,   // Full MDX template instructions
+    messages: [
+      { role: 'user', content: `Write a lesson titled "${lessonTitle}" using these research notes:\n\n${research}` }
+    ]
+  })
+  return message.content[0].type === 'text' ? message.content[0].text : ''
+}
+```
+
+### MDX Validation Before DB Insert
+
+The pipeline must validate generated MDX before storing it. Use the same `compileMDX` function the Next.js app uses, but called from Node.js context:
+
+```typescript
+// scripts/lib/validate-mdx.ts (NEW)
+import { compileMDX } from 'next-mdx-remote/rsc'
+
+export async function validateMDX(mdxContent: string): Promise<{ valid: boolean; error?: string }> {
+  try {
+    await compileMDX({
+      source: mdxContent,
+      components: {},  // Empty components — just validates syntax, not rendering
+    })
+    return { valid: true }
+  } catch (err) {
+    return { valid: false, error: err instanceof Error ? err.message : String(err) }
+  }
+}
+```
+
+### Supabase Seed Function
+
+```typescript
+// scripts/lib/seed-lesson.ts (NEW)
+import { createAdminSupabaseClient } from '../../src/lib/supabase/server'
+
+export async function seedLesson(lessonId: string, mdxContent: string, quizQuestions: QuizQuestion[]) {
+  const supabase = createAdminSupabaseClient()
+
+  // 1. Get current version
+  const { data: lesson } = await supabase
+    .from('lessons')
+    .select('content_version')
+    .eq('id', lessonId)
+    .single()
+
+  const newVersion = (lesson?.content_version ?? 0) + 1
+
+  // 2. Archive current version to lesson_versions
+  const { data: current } = await supabase
+    .from('lessons')
+    .select('mdx_content, learning_objectives')
+    .eq('id', lessonId)
+    .single()
+
+  if (current?.mdx_content) {
+    await supabase.from('lesson_versions').insert({
+      lesson_id: lessonId,
+      version_number: lesson!.content_version,
+      mdx_content: current.mdx_content,
+      learning_objectives: current.learning_objectives,
+      change_note: 'Pre-AI-generation snapshot',
+    })
+  }
+
+  // 3. Update lesson with new content
+  await supabase
+    .from('lessons')
+    .update({ mdx_content: mdxContent, content_version: newVersion })
+    .eq('id', lessonId)
+
+  // 4. Upsert quiz questions
+  for (const q of quizQuestions) {
+    await supabase.from('quiz_questions').upsert(
+      { ...q, lesson_id: lessonId },
+      { onConflict: 'id' }
+    )
+  }
+}
+```
+
+### Integration Points: Content Generation CLI
+
+| Touch Point | Type | Change Required |
+|-------------|------|-----------------|
+| `scripts/generate-lesson.ts` | NEW | CLI entry point with argument parsing |
+| `scripts/agents/orchestrator.ts` | NEW | Coordinates research → write → validate → seed |
+| `scripts/agents/research-agent.ts` | NEW | Claude API research call (claude-opus-4-6) |
+| `scripts/agents/writer-agent.ts` | NEW | Claude API MDX writing call (claude-sonnet-4-6) |
+| `scripts/lib/claude-client.ts` | NEW | Configured Anthropic client |
+| `scripts/lib/validate-mdx.ts` | NEW | MDX validation before DB insert |
+| `scripts/lib/seed-lesson.ts` | NEW | Supabase upsert with version archiving |
+| `scripts/templates/lesson-prompt.ts` | NEW | System prompt embedding lesson template |
+| `scripts/seed-fsrs-from-history.ts` | NEW | One-time FSRS bootstrap from quiz_attempts |
+| `package.json` | MODIFY | Add `@anthropic-ai/sdk`, `tsx` dev dep, `scripts.*` commands |
+| `.env.local` + Vercel | MODIFY | Add `ANTHROPIC_API_KEY` |
+| `tsconfig.json` | POSSIBLY MODIFY | Ensure scripts/ is included in compilation |
+
+---
+
+## Component Boundaries — v2.0 Additions
+
+| Component | Layer | Server/Client | Responsibility | New or Modified |
+|-----------|-------|---------------|----------------|-----------------|
+| `middleware.ts` | Edge | — | Add route protection: all routes except `/sign-in` require Clerk session | MODIFIED |
+| `app/sign-in/[[...sign-in]]/page.tsx` | App | Server wrapper | Render Clerk `<SignIn />` component, centered on page | NEW |
+| `app/review/page.tsx` | App | Server | Fetch due FSRS cards for authenticated user, pass to client | NEW |
+| `components/fsrs/ReviewSession.tsx` | App | **Client** | Flashcard UI: show question, toggle answer reveal, rating buttons (Again/Hard/Good/Easy), advance card | NEW |
+| `components/fsrs/FsrsWidget.tsx` | App | Server | Dashboard "X due today" count with link to /review | NEW |
+| `lib/actions/fsrs.ts` | Server | Server Action | `submitFsrsReview()`, `getDueCardCount()`, `getDueCards()` | NEW |
+| `lib/actions/progress.ts` | Server | Server Action | Replace `HARDCODED_USER_ID` with `await auth()` | MODIFIED |
+| `app/page.tsx` (dashboard) | App | Server | Add due-count query + FSRS widget rendering | MODIFIED |
+| All data-fetching pages | App | Server | Replace `HARDCODED_USER_ID` with `await auth()` in all 4 lesson-hierarchy pages | MODIFIED |
+| `src/types/database.types.ts` | Shared | — | Add `fsrs_cards` and `fsrs_review_logs` types | MODIFIED |
+
+---
+
+## Data Flow: New Features
+
+### FSRS Review Flow
+
+```
+User clicks "X cards due" → /review
+    ↓
+app/review/page.tsx (Server Component)
+  - await auth() → userId
+  - getDueCards(userId) → SELECT from fsrs_cards JOIN quiz_questions WHERE due <= NOW()
+  - Passes cards[] to <ReviewSession cards={cards} />
+    ↓
+ReviewSession.tsx (Client Component)
+  - Shows question text (client state: showAnswer = false initially)
+  - User clicks "Show Answer" → reveals correct answer + explanation
+  - User clicks rating (Again / Hard / Good / Easy)
+    → calls submitFsrsReview(questionId, Rating.Good) — Server Action
+    → Server Action: loads/creates card, calls fsrs.repeat(), upserts fsrs_cards, inserts fsrs_review_logs
+    → returns next card
+  - When cards[] exhausted: show summary screen
+```
+
+### Content Generation Flow (CLI)
+
+```
+Developer terminal: npx tsx scripts/generate-lesson.ts --lesson-slug "cap-theorem"
+    ↓
+orchestrator.ts
+  1. createAdminSupabaseClient() → find lesson by slug → get lesson.id
+  2. researchTopic(topic, pillarContext) → Claude API (opus-4-6) → research notes (string)
+  3. writeLessonMDX(research, lessonTitle, template) → Claude API (sonnet-4-6) → raw MDX
+  4. validateMDX(mdx) → compileMDX() → if error: retry writer up to 3x
+  5. seedLesson(lessonId, mdx, parsedQuizQuestions) → Supabase upsert
+  6. Log: "Done: Lesson updated to v{N}"
+    ↓
+Next time user navigates to that lesson page:
+  - Server Component fetches mdx_content from lessons table (fresh content)
+  - MDXRemote compiles and renders the new content
+  - No cache invalidation needed — force-dynamic pages always re-fetch
+```
+
+### Auth Flow (Post-Wiring)
+
+```
+User visits any app route (not /sign-in)
+    ↓
+middleware.ts — clerkMiddleware() + isPublicRoute check
+  - If unauthenticated: redirect to /sign-in
+  - If authenticated: proceed (session attached to request)
+    ↓
+Server Component / Server Action
+  const { userId } = await auth()
+  userId used for all progress reads and writes
+    ↓
+createAdminSupabaseClient() with explicit user_id on all mutations
+RLS on read queries enforced via Clerk JWT (createServerSupabaseClient)
+```
+
+---
+
+## Project Structure — New Files/Directories
+
+Only showing additions and modifications. Existing structure is unchanged.
+
+```
+src/
+├── app/
+│   ├── page.tsx                            # MODIFIED: add FSRS widget + auth()
+│   ├── sign-in/
+│   │   └── [[...sign-in]]/
+│   │       └── page.tsx                    # NEW: Clerk SignIn component
+│   └── review/
+│       ├── page.tsx                        # NEW: FSRS review session server wrapper
+│       └── loading.tsx                     # NEW: skeleton while due cards load
+├── components/
+│   └── fsrs/
+│       ├── ReviewSession.tsx               # NEW: client — flashcard + rating UI
+│       └── FsrsWidget.tsx                  # NEW: server — "X due today" dashboard card
+├── lib/
+│   └── actions/
+│       ├── progress.ts                     # MODIFIED: auth() replaces HARDCODED_USER_ID
+│       └── fsrs.ts                         # NEW: submitFsrsReview, getDueCardCount, getDueCards
+├── middleware.ts                           # MODIFIED: add route protection
+└── types/
+    └── database.types.ts                   # MODIFIED: add fsrs_cards, fsrs_review_logs types
+
+scripts/                                    # NEW directory (not part of Next.js app)
+├── generate-lesson.ts                      # CLI entry point
+├── seed-fsrs-from-history.ts               # One-time bootstrap
+├── agents/
+│   ├── orchestrator.ts
+│   ├── research-agent.ts
+│   └── writer-agent.ts
+├── lib/
+│   ├── claude-client.ts
+│   ├── validate-mdx.ts
+│   └── seed-lesson.ts
+└── templates/
+    └── lesson-prompt.ts
+
+supabase/
+└── migrations/
+    └── 00004_fsrs_tables.sql               # NEW: fsrs_cards, fsrs_review_logs, indexes, RLS
+```
+
+---
+
+## Build Order for v2.0
+
+Dependencies flow bottom-up. Each feature has internal dependencies AND cross-feature dependencies.
+
+```
+PREREQUISITE: Verify Clerk JWT → Supabase integration works (auth.uid returns non-null)
+This must be tested before wiring auth into any page.
+
+PHASE A: Auth Wiring (no new external deps — everything already installed)
+
+  1. MODIFY middleware.ts
+     Add createRouteMatcher and auth.protect() for all non-public routes
+     Verify: incognito window → /pillars/... → redirected to /sign-in
+     Reason: Must work before any page reads userId from auth()
+
+  2. NEW app/sign-in/[[...sign-in]]/page.tsx
+     Render <SignIn /> from @clerk/nextjs
+     Add three env vars (CLERK_SIGN_IN_URL, etc.) to .env.local and Vercel
+     Verify: sign in flow completes, redirects to dashboard
+
+  3. MODIFY server actions (progress.ts) + data pages (page.tsx, lesson/page.tsx)
+     Replace HARDCODED_USER_ID with await auth()
+     Verify: lessons still mark in_progress, quiz attempts still persist, progress still saves
+     Reason: Auth must work before progress data relies on real userId
+
+PHASE B: FSRS Database + Algorithm (no UI yet)
+
+  4. NEW supabase migration 00004_fsrs_tables.sql
+     Create fsrs_cards, fsrs_review_logs, indexes, RLS policies
+     Verify: tables exist in Supabase, RLS blocks anon reads
+     Reason: Actions and review page depend on these tables existing
+
+  5. MODIFY database.types.ts
+     Add FsrsCard and FsrsReviewLog types
+     Reason: TypeScript safety for all FSRS code
+
+  6. npm install ts-fsrs
+
+  7. NEW lib/actions/fsrs.ts
+     Implement getDueCardCount(), getDueCards(), submitFsrsReview()
+     Verify: manually call getDueCardCount() in a test component, returns 0 (no cards yet)
+     Reason: Pages depend on these actions
+
+PHASE C: FSRS UI
+
+  8. NEW components/fsrs/ReviewSession.tsx (client)
+     Flashcard UI: show question → reveal answer → rate (Again/Hard/Good/Easy)
+     Call submitFsrsReview() on each rating
+     Reason: Review page wraps this
+
+  9. NEW app/review/page.tsx + loading.tsx
+     Server component: auth(), getDueCards(), pass to <ReviewSession>
+     Verify: navigate to /review, no due cards shows empty state
+
+  10. MODIFY app/page.tsx (dashboard)
+      Add getDueCardCount() fetch + FsrsWidget conditional render
+      Verify: widget shows 0 due (correctly)
+
+PHASE D: Bootstrap FSRS from History
+
+  11. NEW scripts/seed-fsrs-from-history.ts
+      Replay quiz_attempts through FSRS to create initial card states
+      Run once: npx tsx scripts/seed-fsrs-from-history.ts
+      Verify: fsrs_cards table has rows, /review shows due cards
+
+PHASE E: Content Generation CLI (independent of Phases A-D)
+
+  12. npm install @anthropic-ai/sdk
+      Add ANTHROPIC_API_KEY to .env.local
+
+  13. NEW scripts/ directory structure
+      claude-client.ts → research-agent.ts → writer-agent.ts → orchestrator.ts
+
+  14. NEW scripts/lib/validate-mdx.ts
+      Verify: compileMDX on a known-bad MDX string returns an error
+
+  15. NEW scripts/lib/seed-lesson.ts
+      Verify: updates a test lesson in Supabase, version increments, old version archived
+
+  16. NEW scripts/templates/lesson-prompt.ts
+      System prompt with full lesson template
+      Verify: writer-agent with a test topic produces valid MDX
+
+  17. Wire orchestrator.ts end-to-end
+      Generate one lesson (Pillar 2, Lesson 1) end-to-end
+      Verify: lesson appears correctly rendered at lesson URL
+
+  18. Generate all Pillars 2-7 content via CLI
+      Run in batches by pillar
+```
+
+**Rationale for this order:**
+- Auth (Phase A) must come before FSRS UI because the review page calls `auth()`
+- FSRS tables (Phase B step 4) must exist before actions that query them
+- FSRS actions (Phase B step 7) must exist before review page that calls them
+- Bootstrap (Phase D) can only run after tables exist AND quiz attempts have been collected
+- Content generation CLI (Phase E) is fully independent — runs against Supabase directly, no Next.js dependency
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: Fetching Supabase in Client Components Directly
-**What goes wrong:** `SUPABASE_SERVICE_ROLE_KEY` would need to be exposed to the browser, or Supabase RLS becomes the sole security layer with no defense in depth.
-**Instead:** All queries in `lib/data/` (server-only), all mutations via Server Actions.
+### Anti-Pattern 1: FSRS Rating Exposed Only After Answer
 
-### Anti-Pattern 2: Marking MDX Layout Components as Client Components
-**What goes wrong:** `Hook`, `ConceptBlock`, `Exercise` have no interactivity. Making them client components pulls them into the JS bundle unnecessarily and prevents them from being rendered in the RSC payload.
-**Instead:** Server components for all display-only lesson blocks. Only `Quiz`, `DeepDive`, `Definition` need `'use client'`.
+**What people do:** Show the four FSRS ratings (Again/Hard/Good/Easy) immediately when the question is shown, before the answer is revealed.
+**Why it's wrong:** The user rates their recall, not their guess. Ratings without seeing the answer are meaningless and corrupt FSRS data quality.
+**Do this instead:** Two-step flow: show question → user tries to recall → clicks "Show Answer" → answer + explanation revealed → user self-rates with Again/Hard/Good/Easy.
 
-### Anti-Pattern 3: Fetching Lesson Data in Middleware
-**What goes wrong:** Middleware runs on the Edge Runtime (limited API surface, no Supabase pg driver, must be fast).
-**Instead:** Middleware does auth only. Data fetching happens in Server Components.
+### Anti-Pattern 2: Creating FSRS Cards Eagerly for All Questions
 
-### Anti-Pattern 4: useEffect for Progress Tracking
-**What goes wrong:** `useEffect` fires after hydration; if the user immediately closes the tab, the "started" event never fires. Server Actions called from `useEffect` also have no progressive enhancement.
-**Instead:** For "mark started", `useEffect` is acceptable (not critical data). For "mark complete", use a button with an explicit Server Action — it works without JavaScript too.
+**What people do:** On first login or FSRS bootstrap, create `fsrs_cards` rows for all ~600 lessons × ~3 questions = ~1800 rows immediately.
+**Why it's wrong:** Flooding the review queue on day one is overwhelming and defeats spaced repetition's purpose. Cards should enter the queue as lessons are completed.
+**Do this instead:** Create an `fsrs_cards` row for a question only when: (a) the user first answers that question in a lesson quiz, OR (b) the bootstrap script replays existing quiz_attempts. New lessons with no quiz history start their cards fresh with `createEmptyCard()`.
 
-### Anti-Pattern 5: A Single Top-Level Layout Fetching All Navigation Data
-**What goes wrong:** The root layout's data fetch blocks all routes. If the pillar list query is slow, every page in the app is slow.
-**Instead:** Fetch navigation data in the `(app)/layout.tsx` (authenticated shell only). Use `React.cache()` so it doesn't duplicate queries. Use `<Suspense>` so slow nav doesn't block lesson content.
+### Anti-Pattern 3: CLI Tool as a Next.js API Route
 
-### Anti-Pattern 6: Content Versioning Without Rollback Table
-**What goes wrong:** `content_version` integer on lessons is useless without the previous versions stored. Content changes are irreversible.
-**Instead:** The `content_version` column plus a `lesson_content_history` table (lessonId, version, mdx_content, created_at) from day one. Rollback = UPDATE lessons SET mdx_content = (SELECT mdx_content FROM lesson_content_history WHERE lesson_id = $1 AND version = $2).
+**What people do:** Build the content generation pipeline as a Next.js Route Handler (e.g., `/api/generate`).
+**Why it's wrong:** Generation takes 30-120 seconds. Vercel serverless functions have a 60-second timeout (Hobby) or 300-second (Pro). The pipeline also needs to be triggered by the developer, not via HTTP. API routes add complexity (auth, CSRF) with no benefit.
+**Do this instead:** Standalone Node.js script in `scripts/` using `@anthropic-ai/sdk` directly. Calls Supabase with the admin client. Run via `npx tsx`.
 
----
+### Anti-Pattern 4: FSRS Cards Storing Compiled MDX
 
-## Scalability Considerations
+**What people do:** De-normalize FSRS cards to store the full question text in `fsrs_cards` for performance.
+**Why it's wrong:** Question text lives in `quiz_questions` and is already indexed. Duplicating it in `fsrs_cards` creates a data consistency problem when quiz questions are updated.
+**Do this instead:** `fsrs_cards` stores only FSRS algorithm state (due, stability, difficulty, etc.) and a foreign key to `quiz_questions`. JOIN in the due-cards query — it's a single query with an index on `question_id`.
 
-| Concern | Phase 1 (1 user, 1 pillar) | Phase 2 (1 user, all pillars) | Phase 3+ (multi-user) |
-|---------|---------------------------|-------------------------------|----------------------|
-| Supabase queries | Service role, explicit user_id filter | Same, add indexes | Migrate to Clerk JWT + RLS |
-| MDX compilation | On every request (fast enough) | Same, or add `use cache` | Pre-compile on content save |
-| Progress queries | Simple select by user_id + lesson_id | Add composite indexes | Partitioning by user_id |
-| Auth | Clerk single user, no RLS | Same | Enable Supabase RLS policies |
-| State management | useActionState, no Zustand | Same | Evaluate if global state needed |
+### Anti-Pattern 5: Replacing HARDCODED_USER_ID Before Auth is Tested
+
+**What people do:** Delete `HARDCODED_USER_ID` and replace all call sites with `auth()` in one commit, then discover that middleware is misconfigured and all pages break.
+**Why it's wrong:** A broken auth integration takes down the entire app.
+**Do this instead:** Wire middleware first and verify the sign-in redirect works. Then wire one server action (e.g., `markLessonComplete`) to `auth()`, verify it still works when logged in. Then replace the remaining call sites. Delete `HARDCODED_USER_ID` constant last, after all replacements are verified.
 
 ---
 
-## Suggested Build Order
+## Integration Points Summary
 
-Dependencies flow bottom-up. Build data before UI before interactivity.
-
-```
-1. DATABASE SCHEMA (Supabase)
-   - pillars, semesters, courses, lessons tables
-   - user_lesson_progress table
-   - quiz_attempts table
-   - lesson_content_history table (rollback)
-   - lesson_connections table (cross-pillar, can seed empty)
-   Reason: Everything else depends on this shape
-
-2. AUTH LAYER (Clerk + Middleware)
-   - Install Clerk, configure middleware.ts
-   - Protect (app) routes
-   - Verify userId flows to Server Components
-   Reason: Must work before any data access
-
-3. SUPABASE DATA ACCESS LAYER (lib/data/)
-   - createServerSupabaseClient
-   - getPillars, getLessons, getProgress queries
-   - All wrapped in React.cache()
-   Reason: Pages depend on these functions
-
-4. SERVER ACTIONS (app/actions/)
-   - markLessonStarted, markLessonComplete
-   - recordQuizAttempt
-   Reason: Client components depend on these
-
-5. STATIC LAYOUT SHELL
-   - app/layout.tsx (root)
-   - app/(app)/layout.tsx (authenticated shell with nav)
-   - Pillar color system via CSS variables
-   Reason: Pages render inside this
-
-6. NAVIGATION ROUTES (Pillar → Semester → Course → Lesson)
-   - All [id]/page.tsx files as Server Components
-   - List views only, no MDX yet
-   Reason: Validates data model and routing before MDX complexity
-
-7. MDX RENDERING PIPELINE
-   - Install next-mdx-remote
-   - Create mdxComponents map with stub components
-   - Wire lesson page to compileMDX
-   Reason: Core product feature, but isolated to lesson page
-
-8. CUSTOM MDX COMPONENTS (display-only first)
-   - Hook, ConceptBlock, Exercise, Takeaways, Definition
-   Reason: No state, test MDX rendering works
-
-9. INTERACTIVE MDX COMPONENTS
-   - Quiz (most complex — state machine, Server Action)
-   - DeepDive (simple toggle)
-   Reason: Needs MDX pipeline working first
-
-10. DASHBOARD + PROGRESS TRACKING
-    - ProgressRings, ContinueCard
-    - LessonProgressTracker client component
-    - Wire Server Actions to update progress
-    Reason: Needs lessons + quiz working to have data to display
-
-11. SEED CONTENT
-    - 2 hand-written lessons for Pillar 1
-    Reason: Final validation that entire pipeline works end-to-end
-```
+| Feature | New Files | Modified Files | New DB Objects |
+|---------|-----------|----------------|----------------|
+| Clerk Auth | `app/sign-in/[[...sign-in]]/page.tsx` | `middleware.ts`, `lib/actions/progress.ts`, `app/page.tsx`, `app/pillars/.../page.tsx` (×4) | None |
+| FSRS | `lib/actions/fsrs.ts`, `app/review/page.tsx`, `app/review/loading.tsx`, `components/fsrs/ReviewSession.tsx`, `components/fsrs/FsrsWidget.tsx`, `scripts/seed-fsrs-from-history.ts` | `app/page.tsx`, `types/database.types.ts`, `package.json` | `fsrs_cards`, `fsrs_review_logs` (migration `00004`) |
+| Content CLI | `scripts/generate-lesson.ts`, `scripts/agents/orchestrator.ts`, `scripts/agents/research-agent.ts`, `scripts/agents/writer-agent.ts`, `scripts/lib/claude-client.ts`, `scripts/lib/validate-mdx.ts`, `scripts/lib/seed-lesson.ts`, `scripts/templates/lesson-prompt.ts` | `package.json` | None (writes to existing `lessons`, `lesson_versions`, `quiz_questions`) |
 
 ---
 
 ## Sources
 
-- Next.js 15 Server and Client Components (official, verified 2026-02-24): https://nextjs.org/docs/app/getting-started/server-and-client-components
-- Next.js Data Fetching patterns (official, verified 2026-02-24): https://nextjs.org/docs/app/getting-started/fetching-data
-- Next.js Caching and Revalidation (official, verified 2026-02-24): https://nextjs.org/docs/app/getting-started/caching-and-revalidating
-- Next.js Server Actions / Updating Data (official, verified 2026-02-24): https://nextjs.org/docs/app/getting-started/updating-data
-- Next.js Layouts and Pages (official, verified 2026-02-24): https://nextjs.org/docs/app/getting-started/layouts-and-pages
-- Next.js layout.js API reference (official, verified 2026-02-24): https://nextjs.org/docs/app/api-reference/file-conventions/layout
-- Next.js Route Groups (official, verified 2026-02-24): https://nextjs.org/docs/app/api-reference/file-conventions/route-groups
-- Next.js MDX Guide (official, verified 2026-02-24): https://nextjs.org/docs/app/guides/mdx
-- next-mdx-remote RSC mode: https://github.com/hashicorp/next-mdx-remote (training data, MEDIUM confidence — verify RSC import path at install time)
-- Clerk + Supabase JWT integration: MEDIUM confidence (pattern known, but Clerk template config must be verified in Clerk dashboard at build time)
+- [ts-fsrs GitHub (TypeScript FSRS library)](https://github.com/open-spaced-repetition/ts-fsrs) — HIGH confidence, verified 2026-03-02
+- [ts-fsrs npm (v4.5.x)](https://www.npmjs.com/package/ts-fsrs) — HIGH confidence
+- [Clerk clerkMiddleware() reference](https://clerk.com/docs/reference/nextjs/clerk-middleware) — HIGH confidence, official docs verified 2026-03-02
+- [Clerk custom sign-in page guide](https://clerk.com/docs/nextjs/guides/development/custom-sign-in-or-up-page) — HIGH confidence, official docs verified 2026-03-02
+- [Anthropic multi-agent research system](https://www.anthropic.com/engineering/multi-agent-research-system) — MEDIUM confidence, architectural pattern reference
+- Existing codebase inspection (`src/middleware.ts`, `src/lib/supabase/server.ts`, `src/types/database.types.ts`, `src/lib/actions/progress.ts`, `supabase/migrations/00001_initial_schema.sql`) — HIGH confidence, ground truth
+
+---
+
+*Architecture research for: Personal Learning Curriculum Platform — v2.0 content generation pipeline, FSRS spaced repetition, Clerk auth integration*
+*Researched: 2026-03-02*
