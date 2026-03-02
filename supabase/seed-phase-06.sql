@@ -357,7 +357,7 @@ $lesson1$;
       'Define self-attention and explain how positional encoding preserves sequence order',
       'Articulate why the transformer architecture enables massively parallel GPU training'
     ],
-    10,
+    7,
     1
   )
   ON CONFLICT (course_id, slug) DO UPDATE SET
@@ -634,7 +634,7 @@ $lesson2$;
       'Distinguish self-attention from cross-attention and identify where each is used in an encoder-decoder transformer',
       'Name two modern attention efficiency improvements and explain what bottleneck they address'
     ],
-    11,
+    10,
     2
   )
   ON CONFLICT (course_id, slug) DO UPDATE SET
