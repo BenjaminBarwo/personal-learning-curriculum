@@ -34,10 +34,20 @@ Every lesson must be so frictionless to start and so engaging to continue that t
 
 ### Active
 
-- [ ] AI-powered course generation from topic input (Claude API)
-- [ ] Spaced repetition system using FSRS algorithm
-- [ ] Clerk sign-in UI with protected routes
-- [ ] Content for Pillars 2-7 (AI-generated)
+- [ ] Content generation CLI pipeline — Claude API + sub-agents research topics deeply, produce full MDX lessons matching lesson template, seed into Supabase
+- [ ] Pillars 2-7 content — all ~598 remaining lessons generated via pipeline
+- [ ] FSRS spaced repetition — quiz questions become review cards, dashboard widget ("X due today"), standalone review page with flashcard flow + difficulty rating
+- [ ] Clerk sign-in UI — sign-in page, protected routes, wire real Clerk client (single user, no roles)
+
+## Current Milestone: v2.0 Content & Retention
+
+**Goal:** Fill all 7 pillars with AI-generated content via a reusable CLI pipeline, add spaced repetition for long-term retention, and wire up authentication.
+
+**Target features:**
+- Content generation CLI pipeline (Claude API + sub-agents → MDX → Supabase)
+- All Pillars 2-7 content generated and seeded
+- FSRS spaced repetition with dashboard widget and review page
+- Clerk auth wired up with protected routes
 
 ### Out of Scope
 
@@ -131,4 +141,4 @@ A `lesson_connections` junction table links related lessons across pillars (prer
 | force-dynamic on data pages | Vercel was caching stale progress queries | ✓ Good — simple fix for ISR caching issue |
 
 ---
-*Last updated: 2026-03-02 after v1.0 milestone*
+*Last updated: 2026-03-02 after v2.0 milestone start*
