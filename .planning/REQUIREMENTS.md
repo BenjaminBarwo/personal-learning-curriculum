@@ -46,8 +46,8 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Seed Content
 
-- [ ] **SEED-01**: 2 complete hand-written lessons for Pillar 1 (AI & Agentic Engineering) following the lesson design template (Hook → ConceptBlocks → Quiz → DeepDive → Exercise → Takeaways)
-- [ ] **SEED-02**: All 7 pillars seeded in database with names, colors, descriptions
+- [x] **SEED-01**: 2 complete hand-written lessons for Pillar 1 (AI & Agentic Engineering) following the lesson design template (Hook → ConceptBlocks → Quiz → DeepDive → Exercise → Takeaways)
+- [x] **SEED-02**: All 7 pillars seeded in database with names, colors, descriptions
 
 ## v2 Requirements
 
@@ -121,8 +121,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | INFR-03 | Phase 1 | Complete (01-03) |
 | DESG-01 | Phase 2 | Complete |
 | DESG-02 | Phase 2 | Complete |
-| SEED-01 | Phase 6 | Pending |
-| SEED-02 | Phase 6 | Pending |
+| SEED-01 | Phase 6 | Complete |
+| SEED-02 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 21 total

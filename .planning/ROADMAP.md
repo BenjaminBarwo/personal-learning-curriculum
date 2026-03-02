@@ -144,4 +144,4 @@ Phases execute: 1 → 2 → 3 → 4 → 5 → 7 (verification cleanup) → 6 (se
 | 4. Quiz Engine | 2/2 | Complete   | 2026-03-01 |
 | 5. Progress + Dashboard | 2/2 | Complete   | 2026-03-01 |
 | 7. Verification + Cleanup | 1/1 | Complete   | 2026-03-01 |
-| 6. Seed Content | 0/TBD | Not started | - |
+| 6. Seed Content | 1/2 | In Progress|  |

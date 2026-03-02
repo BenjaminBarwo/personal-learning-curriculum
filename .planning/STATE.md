@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-last_updated: "2026-03-01T12:39:39.102Z"
+last_updated: "2026-03-02T17:16:14.186Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 6
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 14
+  completed_plans: 13
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-02-27)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** Phase 7 — Verification and Cleanup (COMPLETE)
+**Current focus:** Phase 6 — Seed Content (Plan 01 COMPLETE)
 
 ## Current Position
 
-Phase: 7 of 7 (Verification + Cleanup) — COMPLETE
+Phase: 6 of 7 (Seed Content) — In Progress
 Plan: 1 of 1 in current phase — COMPLETE
-Status: Plan 07-01 complete — dead code removed (createClerkSupabaseClient), stale import fixed (getLessonProgressForScope from dashboard), 05-VERIFICATION.md written closing PROG-01/02/03 audit gaps
-Last activity: 2026-03-01 — Plan 07-01: Gap closure — code hygiene + Phase 5 verification documentation
+Status: Plan 06-01 complete — production seed SQL created (7 pillar upserts, Pillar 1 hierarchy, 2 complete MDX lessons with 10 quiz questions); ready to run against Supabase via SQL Editor
+Last activity: 2026-03-02 — Plan 06-01: Production seed data — all 7 pillars, Pillar 1 semester/course hierarchy, Lessons 1 & 2 with MDX content and quiz questions
 
-Progress: [██████████] 100% (All phases 1-7 complete; v1.0 milestone verification chain closed)
+Progress: [████████░░] 93% (Phase 6 Plan 01 complete; seed SQL ready for production execution)
 
 ## Performance Metrics
 
@@ -54,6 +54,7 @@ Progress: [██████████] 100% (All phases 1-7 complete; v1.0 m
 *Updated after each plan completion*
 | Phase 05-progress-dashboard P02 | 2 | 1 tasks | 4 files |
 | Phase 07-verification-cleanup P01 | 2 | 2 tasks | 3 files (1 created, 1 modified, 1 deleted) |
+| Phase 06-seed-content P01 | 6 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -109,6 +110,8 @@ Recent decisions affecting current work:
 - [Phase 05-02]: Semester lock enforced at page level — locked semester URL shows locked UI, cannot be bypassed by direct navigation
 - [07-01]: Deleted src/lib/supabase/client.ts (createClerkSupabaseClient never imported externally after Phase 5 server actions pattern) — grep safety check confirmed before deletion
 - [07-01]: 05-VERIFICATION.md documents createAdminSupabaseClient (server action) as actual mutation mechanism — NOT createClerkSupabaseClient as planned in 05-01; verifies real built code
+- [Phase 06-01]: Fixed pre-computed UUIDs (d290f1ee series, e390f1ee series) for quiz questions in seed SQL — eliminates UUID coordination problem between quiz_questions INSERT and MDX Quiz questionId tags
+- [Phase 06-01]: estimated_minutes computed from actual prose word count after MDX authored (strip tags, divide by 225, ceil): Lesson 1 = 7 min (1503 words), Lesson 2 = 10 min (2071 words)
 
 ### Pending Todos
 
@@ -125,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: 07-01-PLAN.md COMPLETE — all 2 tasks complete, SUMMARY.md created, v1.0 verification chain closed
+Last session: 2026-03-02
+Stopped at: 06-01-PLAN.md COMPLETE — all 2 tasks complete, SUMMARY.md created, production seed SQL ready for Supabase SQL Editor execution
 Resume file: None
