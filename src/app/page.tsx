@@ -6,6 +6,8 @@ import { PillarCard } from '@/components/ui/PillarCard'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@/types/database.types'
 
+export const dynamic = 'force-dynamic'
+
 export default async function DashboardPage() {
   const supabase = await createServerSupabaseClient()
   const adminSupabase = createAdminSupabaseClient()

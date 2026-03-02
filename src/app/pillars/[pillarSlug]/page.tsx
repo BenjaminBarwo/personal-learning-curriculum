@@ -8,6 +8,8 @@ import { getLessonProgressForScope, isSemesterLocked } from '@/lib/progress'
 import { HARDCODED_USER_ID } from '@/constants/user'
 import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@/types/database.types'
 
+export const dynamic = 'force-dynamic'
+
 interface PillarPageProps {
   params: Promise<{ pillarSlug: string }>
 }
