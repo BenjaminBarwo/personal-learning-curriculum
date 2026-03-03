@@ -69,7 +69,9 @@ Full details: `milestones/v1.0-ROADMAP.md`
   3. Rating a card advances to the next card and the dashboard due count decreases accordingly
   4. Card state (reps, due date, stability) is persisted to `fsrs_cards` in Supabase after each rating
   5. When no cards are due, `/review` shows an "All caught up" state with the time until the next card is due
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 10-01-PLAN.md — getDueCardsForReview/getNextDueCard server actions + dashboard due-today widget
+- [ ] 10-02-PLAN.md — /review page with ReviewSession card-flip flow + "All caught up" state
 
 ### Phase 11: Content Generation CLI
 **Goal**: A developer-run CLI pipeline can generate validated MDX lessons for any scope (pillar / semester / course) and seed them idempotently into Supabase
