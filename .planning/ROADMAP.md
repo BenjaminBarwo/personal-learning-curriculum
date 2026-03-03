@@ -112,5 +112,5 @@ Full details: `milestones/v1.0-ROADMAP.md`
 | 8. Clerk Auth Wiring | 1/1 | Complete   | 2026-03-03 | - |
 | 9. FSRS Data Layer | 2/2 | Complete   | 2026-03-03 | - |
 | 10. FSRS Review UI | 2/2 | Complete    | 2026-03-03 | - |
-| 11. Content Generation CLI | v2.0 | 0/3 | Not started | - |
+| 11. Content Generation CLI | 2/3 | In Progress|  | - |
 | 12. Bulk Content Generation | v2.0 | 0/? | Not started | - |

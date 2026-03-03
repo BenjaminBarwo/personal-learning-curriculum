@@ -26,13 +26,13 @@ Requirements for v2.0 Content & Retention milestone. Each maps to roadmap phases
 ### Content Generation Pipeline
 
 - [ ] **GEN-01**: CLI entry point (`pnpm generate`) accepts scope flags for pillar, semester, or course
-- [ ] **GEN-02**: Generated MDX is validated against lesson template (required components: Hook, ConceptBlock, Quiz, DeepDive, Exercise, Takeaways)
+- [x] **GEN-02**: Generated MDX is validated against lesson template (required components: Hook, ConceptBlock, Quiz, DeepDive, Exercise, Takeaways)
 - [ ] **GEN-03**: Generated content is seeded into `lessons.mdx_content` with `lesson_versions` history
 - [ ] **GEN-04**: CLI reports progress per lesson during generation (e.g., `[3/12] Generating: "Topic Name"...`)
 - [ ] **GEN-05**: Pipeline skips already-generated lessons by default with `--force` flag to override
 - [ ] **GEN-06**: Dry-run mode (`--dry-run`) validates output without writing to database
 - [ ] **GEN-07**: Retry with exponential backoff on API rate limit errors (429/529)
-- [ ] **GEN-08**: Orchestrator + research sub-agent pattern produces deep, topic-specific lesson content
+- [x] **GEN-08**: Orchestrator + research sub-agent pattern produces deep, topic-specific lesson content
 
 ### Content
 
@@ -90,13 +90,13 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FSRS-06 | Phase 10 | Complete |
 | FSRS-07 | Phase 10 | Complete |
 | GEN-01 | Phase 11 | Pending |
-| GEN-02 | Phase 11 | Pending |
+| GEN-02 | Phase 11 | Complete |
 | GEN-03 | Phase 11 | Pending |
 | GEN-04 | Phase 11 | Pending |
 | GEN-05 | Phase 11 | Pending |
 | GEN-06 | Phase 11 | Pending |
 | GEN-07 | Phase 11 | Pending |
-| GEN-08 | Phase 11 | Pending |
+| GEN-08 | Phase 11 | Complete |
 | CONT-01 | Phase 12 | Pending |
 
 **Coverage:**

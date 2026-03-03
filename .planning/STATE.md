@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Content & Retention
 status: unknown
-last_updated: "2026-03-03T02:48:10.011Z"
+last_updated: "2026-03-03T07:29:18Z"
 progress:
   total_phases: 3
   completed_phases: 3
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 7
+  completed_plans: 7
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** v2.0 Content & Retention — Phase 10: FSRS Review UI (plan 02 complete — ReviewSession component and /review RSC page)
+**Current focus:** v2.0 Content & Retention — Phase 11: Content Generation CLI (plan 02 complete — four-stage pipeline: research, generate, review, validate)
 
 ## Current Position
 
-Phase: 10 of 12 (FSRS Review UI) — third phase of v2.0
-Plan: 02 complete (ReviewSession client component + /review RSC page + "All caught up" state)
+Phase: 11 of 12 (Content Generation CLI) — fourth phase of v2.0
+Plan: 02 complete (prompt templates + four pipeline stages: research, generate, review, validate)
 Status: In progress
-Last activity: 2026-03-03 — 10-02 completed: ReviewSession component with card-flip state machine; /review page with force-dynamic and all-caught-up state
+Last activity: 2026-03-03 — 11-02 completed: generation pipeline with streaming, web_search research, two-pass review, MDX validation
 
-Progress: [######░░░░] 60%
+Progress: [########░░] 75%
 
 ## Performance Metrics
 
@@ -46,6 +46,8 @@ Progress: [######░░░░] 60%
 | Phase 9 (09-02) | 1 | ~3 min | ~3 min |
 | Phase 10 (10-01) | 1 | ~2 min | ~2 min |
 | Phase 10 (10-02) | 2 | ~2 min | ~2 min |
+| Phase 11 (11-01) | 1 | ~2 min | ~2 min |
+| Phase 11 (11-02) | 2 | ~6 min | ~6 min |
 
 *Updated after each plan completion*
 
@@ -76,6 +78,9 @@ Recent decisions for v2.0:
 - [Phase 10]: f.repeat() used for client-side interval hint computation — returns all 4 outcomes in one call; server action uses f.next() for single-grade persistence
 - [Phase 10]: router.refresh() after last card rated — RSC re-render sees empty due queue and shows all-caught-up without tracking client state
 - [Phase 10]: force-dynamic on /review RSC page — due cards are per-user per-request; static generation would bake in stale counts
+- [11-02]: Dynamic import for @mdx-js/mdx in validate-mdx.ts — static import fails with ERR_PACKAGE_PATH_NOT_EXPORTED due to estree-walker missing exports field
+- [11-02]: Quiz PLACEHOLDER_N pattern — generation embeds string placeholders; Plan 03 orchestrator replaces with real UUIDs after Supabase insert
+- [11-02]: Streaming only for generateLesson — review responses are shorter; streaming justified only for 8192-token generation to avoid idle timeout
 
 ### Pending Todos
 
@@ -89,5 +94,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: 10-02-PLAN.md complete — ReviewSession component and /review RSC page created; FSRS-04/05/06/07 requirements satisfied
+Stopped at: 11-02-PLAN.md complete — generation pipeline (research, generate, review, validate) and prompt templates created; GEN-02/GEN-08 requirements satisfied
 Resume file: None
