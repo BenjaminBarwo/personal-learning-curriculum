@@ -83,7 +83,10 @@ Full details: `milestones/v1.0-ROADMAP.md`
   3. Running with `--dry-run` prints the validated MDX to stdout and writes nothing to the database
   4. The CLI prints per-lesson progress (e.g., `[3/12] Generating: "Topic Name"...`) throughout execution
   5. API rate limit errors (429/529) trigger automatic retry with exponential backoff rather than crashing the CLI
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 11-01-PLAN.md — CLI scaffold: dependencies, Anthropic client with retry, Supabase CLI client, Commander entry point
+- [ ] 11-02-PLAN.md — Generation pipeline: prompt templates, research/generate/review stages, MDX validation
+- [ ] 11-03-PLAN.md — Orchestrator loop: scope queries, idempotent seeding, dry-run mode, USAGE.md
 
 ### Phase 12: Bulk Content Generation
 **Goal**: All ~598 remaining lessons across Pillars 2-7 are generated, validated, and seeded into Supabase — the full curriculum is available for learners
@@ -109,5 +112,5 @@ Full details: `milestones/v1.0-ROADMAP.md`
 | 8. Clerk Auth Wiring | 1/1 | Complete   | 2026-03-03 | - |
 | 9. FSRS Data Layer | 2/2 | Complete   | 2026-03-03 | - |
 | 10. FSRS Review UI | 2/2 | Complete    | 2026-03-03 | - |
-| 11. Content Generation CLI | v2.0 | 0/? | Not started | - |
+| 11. Content Generation CLI | v2.0 | 0/3 | Not started | - |
 | 12. Bulk Content Generation | v2.0 | 0/? | Not started | - |
