@@ -134,3 +134,12 @@ Note: The fsrs_cards and fsrs_review_logs tables must be applied to Supabase (mi
 ---
 *Phase: 09-fsrs-data-layer*
 *Completed: 2026-03-03*
+
+## Self-Check: PASSED
+
+- FOUND: src/lib/actions/progress.ts (with createEmptyCard import and FSRS card seeding)
+- FOUND: src/lib/actions/fsrs.ts (with submitFsrsReview and getDueCardCount exports)
+- FOUND: .planning/phases/09-fsrs-data-layer/09-02-SUMMARY.md
+- FOUND: 8788e66 (feat: extend markLessonComplete() with FSRS card seeding)
+- FOUND: a1e9f6a (feat: create fsrs.ts server actions for review and due-count)
+- VERIFIED: npx tsc --noEmit passes with zero errors
