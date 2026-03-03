@@ -16,7 +16,7 @@ Requirements for v2.0 Content & Retention milestone. Each maps to roadmap phases
 ### FSRS Spaced Repetition
 
 - [x] **FSRS-01**: `review_cards` table exists in Supabase with FSRS card state fields (due, stability, difficulty, state, reps, lapses)
-- [ ] **FSRS-02**: Review cards are auto-seeded from quiz questions when a lesson is completed
+- [x] **FSRS-02**: Review cards are auto-seeded from quiz questions when a lesson is completed
 - [ ] **FSRS-03**: Dashboard shows "X due today" widget with link to review page
 - [ ] **FSRS-04**: User can review due cards on `/review` page with card-flip flow (question → show answer → rate)
 - [ ] **FSRS-05**: Rating buttons show interval hints per option (e.g., "Good → 4 days")
@@ -83,7 +83,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AUTH-02 | Phase 8 | Complete |
 | AUTH-03 | Phase 8 | Complete |
 | FSRS-01 | Phase 9 | Complete |
-| FSRS-02 | Phase 9 | Pending |
+| FSRS-02 | Phase 9 | Complete |
 | FSRS-03 | Phase 10 | Pending |
 | FSRS-04 | Phase 10 | Pending |
 | FSRS-05 | Phase 10 | Pending |

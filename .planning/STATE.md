@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Content & Retention
 status: unknown
-last_updated: "2026-03-03T02:06:21Z"
+last_updated: "2026-03-03T02:12:00Z"
 progress:
   total_phases: 1
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 3
+  completed_plans: 3
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** v2.0 Content & Retention — Phase 9: FSRS Data Layer (plan 01 complete)
+**Current focus:** v2.0 Content & Retention — Phase 9: FSRS Data Layer (plan 02 complete — phase complete)
 
 ## Current Position
 
 Phase: 9 of 12 (FSRS Data Layer) — second phase of v2.0
-Plan: 01 complete (ts-fsrs installed, migration created, TypeScript types added)
+Plan: 02 complete (FSRS server actions: markLessonComplete seeding, submitFsrsReview, getDueCardCount)
 Status: In progress
-Last activity: 2026-03-03 — 09-01 completed: ts-fsrs@5.2.3 installed, 00004_fsrs_tables.sql created, database.types.ts extended
+Last activity: 2026-03-03 — 09-02 completed: progress.ts extended with card seeding, fsrs.ts created with two server actions
 
-Progress: [###░░░░░░░] 30%
+Progress: [####░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -43,6 +43,7 @@ Progress: [###░░░░░░░] 30%
 | v1.0 (1-7) | 14 | — | — |
 | Phase 8 (08-01) | 1 | ~4 min | ~4 min |
 | Phase 9 (09-01) | 1 | ~2 min | ~2 min |
+| Phase 9 (09-02) | 1 | ~3 min | ~3 min |
 
 *Updated after each plan completion*
 
@@ -63,6 +64,9 @@ Recent decisions for v2.0:
 - [09-01]: learning_steps included in fsrs_cards — ts-fsrs v5.2.3 Card interface includes it (tracks step index within learning/relearning phase)
 - [09-01]: FsrsRating typed as 1|2|3|4 (not 0|1|2|3|4) — Manual=0 excluded from review ratings per ts-fsrs Grade type
 - [09-01]: fsrs_review_logs Update typed as never — append-only enforcement at TypeScript level matches SQL intent (no UPDATE policy defined)
+- [09-02]: FsrsCard explicit cast (data as unknown as FsrsCard) required — Supabase select('*').single() returns {} in strict mode without it
+- [09-02]: state cast as unknown as FsrsCardState (not as number) — Supabase Insert type expects FsrsCardState union, not bare number
+- [09-02]: FSRS card seeding uses ignoreDuplicates: true — re-completing a lesson never resets existing card state
 
 ### Pending Todos
 
@@ -76,5 +80,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: 09-01-PLAN.md complete — ts-fsrs installed, FSRS tables migration created, TypeScript types added
+Stopped at: 09-02-PLAN.md complete — progress.ts extended with FSRS card seeding, fsrs.ts created with submitFsrsReview and getDueCardCount
 Resume file: None
