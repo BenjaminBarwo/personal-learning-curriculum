@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { createServerSupabaseClient, createAdminSupabaseClient } from '@/lib/supabase/server'
 import { getContinueLesson } from '@/lib/progress'
-import { HARDCODED_USER_ID } from '@/constants/user'
+import { auth } from '@clerk/nextjs/server'
 import { PillarCard } from '@/components/ui/PillarCard'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@/types/database.types'
@@ -9,6 +9,9 @@ import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
+  const { userId } = await auth()
+  if (!userId) return null
+
   const supabase = await createServerSupabaseClient()
   const adminSupabase = createAdminSupabaseClient()
 
@@ -25,7 +28,7 @@ export default async function DashboardPage() {
   const firstPillar = activePillars[0]
 
   // Continue card — most recently accessed in-progress lesson
-  const continueData = await getContinueLesson(adminSupabase, HARDCODED_USER_ID)
+  const continueData = await getContinueLesson(adminSupabase, userId)
 
   // Pillar progress — batched queries to avoid N+1
   // Fetch all semesters, courses, and lessons in one pass each
@@ -73,7 +76,7 @@ export default async function DashboardPage() {
   const { data: completedProgressData } = await adminSupabase
     .from('progress')
     .select('lesson_id')
-    .eq('user_id', HARDCODED_USER_ID)
+    .eq('user_id', userId)
     .eq('status', 'completed')
 
   const completedLessonIds = new Set((completedProgressData ?? []).map((r) => r.lesson_id))

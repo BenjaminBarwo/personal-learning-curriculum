@@ -5,7 +5,7 @@ import { buildBreadcrumbs } from '@/lib/navigation'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { getLessonProgressForScope, getLessonStatuses } from '@/lib/progress'
-import { HARDCODED_USER_ID } from '@/constants/user'
+import { auth } from '@clerk/nextjs/server'
 import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson, LessonStatus } from '@/types/database.types'
 
 interface CoursePageProps {
@@ -59,6 +59,9 @@ function LessonStatusIcon({ status, color }: { status: LessonStatus; color: stri
 
 export default async function CoursePage({ params }: CoursePageProps) {
   const { pillarSlug, semesterSlug, courseSlug } = await params
+  const { userId } = await auth()
+  if (!userId) return null
+
   const supabase = await createServerSupabaseClient()
   const adminSupabase = createAdminSupabaseClient()
 
@@ -118,8 +121,8 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
   // Get lesson statuses and overall course progress in parallel
   const [statuses, courseProgress] = await Promise.all([
-    getLessonStatuses(adminSupabase, lessonIds, HARDCODED_USER_ID),
-    getLessonProgressForScope(adminSupabase, lessonIds, HARDCODED_USER_ID),
+    getLessonStatuses(adminSupabase, lessonIds, userId),
+    getLessonProgressForScope(adminSupabase, lessonIds, userId),
   ])
 
   const crumbs = buildBreadcrumbs({

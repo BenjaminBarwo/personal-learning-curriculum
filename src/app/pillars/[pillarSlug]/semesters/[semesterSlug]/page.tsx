@@ -5,7 +5,7 @@ import { buildBreadcrumbs } from '@/lib/navigation'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
 import { ProgressBar } from '@/components/ui/ProgressBar'
 import { getLessonProgressForScope, isSemesterLocked } from '@/lib/progress'
-import { HARDCODED_USER_ID } from '@/constants/user'
+import { auth } from '@clerk/nextjs/server'
 import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@/types/database.types'
 
 interface SemesterPageProps {
@@ -14,6 +14,9 @@ interface SemesterPageProps {
 
 export default async function SemesterPage({ params }: SemesterPageProps) {
   const { pillarSlug, semesterSlug } = await params
+  const { userId } = await auth()
+  if (!userId) return null
+
   const supabase = await createServerSupabaseClient()
   const adminSupabase = createAdminSupabaseClient()
 
@@ -93,7 +96,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
     const { data: siblingProgressData } = await adminSupabase
       .from('progress')
       .select('lesson_id')
-      .eq('user_id', HARDCODED_USER_ID)
+      .eq('user_id', userId)
       .eq('status', 'completed')
       .in('lesson_id', allSiblingLessonIds)
     completedSiblingLessonIds = new Set((siblingProgressData ?? []).map((r) => r.lesson_id))
@@ -137,7 +140,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
     const { data: semProgressData } = await adminSupabase
       .from('progress')
       .select('lesson_id')
-      .eq('user_id', HARDCODED_USER_ID)
+      .eq('user_id', userId)
       .eq('status', 'completed')
       .in('lesson_id', currentSemLessonIds)
     completedCourseIds = new Set((semProgressData ?? []).map((r) => r.lesson_id))
@@ -165,7 +168,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
   const semesterProgress = await getLessonProgressForScope(
     adminSupabase,
     currentSemLessonIds,
-    HARDCODED_USER_ID
+    userId
   )
 
   const completedCourseCount = courses.filter(

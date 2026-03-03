@@ -1,16 +1,19 @@
 'use server'
 
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
-import { HARDCODED_USER_ID } from '@/constants/user'
+import { auth } from '@clerk/nextjs/server'
 
 export async function markLessonComplete(lessonId: string): Promise<{ success: boolean; error?: string }> {
+  const { userId } = await auth()
+  if (!userId) return { success: false, error: 'Unauthorized' }
+
   const supabase = createAdminSupabaseClient()
 
   const { error } = await supabase
     .from('progress')
     .upsert(
       {
-        user_id: HARDCODED_USER_ID,
+        user_id: userId,
         lesson_id: lessonId,
         status: 'completed' as const,
         completed_at: new Date().toISOString(),
@@ -35,20 +38,23 @@ export async function persistQuizAttempt(params: {
   isCorrect: boolean
   timeSpentSeconds: number | null
 }): Promise<{ success: boolean }> {
+  const { userId } = await auth()
+  if (!userId) return { success: false }
+
   const supabase = createAdminSupabaseClient()
 
   const { count, error: countError } = await supabase
     .from('quiz_attempts')
     .select('*', { count: 'exact', head: true })
     .eq('question_id', params.questionId)
-    .eq('user_id', HARDCODED_USER_ID)
+    .eq('user_id', userId)
 
   if (countError) {
     console.error('[Quiz] Failed to count attempts:', countError)
   }
 
   const { error: insertError } = await supabase.from('quiz_attempts').insert({
-    user_id: HARDCODED_USER_ID,
+    user_id: userId,
     question_id: params.questionId,
     lesson_id: params.lessonId,
     selected_answer: params.selectedAnswer,
