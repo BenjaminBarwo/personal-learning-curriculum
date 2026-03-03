@@ -105,7 +105,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 | 7. Verification + Cleanup | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 6. Seed Content | v1.0 | 2/2 | Complete | 2026-03-02 |
 | 8. Clerk Auth Wiring | 1/1 | Complete   | 2026-03-03 | - |
-| 9. FSRS Data Layer | v2.0 | 0/2 | Not started | - |
+| 9. FSRS Data Layer | 1/2 | In Progress|  | - |
 | 10. FSRS Review UI | v2.0 | 0/? | Not started | - |
 | 11. Content Generation CLI | v2.0 | 0/? | Not started | - |
 | 12. Bulk Content Generation | v2.0 | 0/? | Not started | - |
