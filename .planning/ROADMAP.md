@@ -55,7 +55,9 @@ Full details: `milestones/v1.0-ROADMAP.md`
   2. Completing a lesson causes quiz questions from that lesson to appear as new rows in `fsrs_cards`
   3. Calling `submitFsrsReview()` on a card increments its `reps` counter in the database and advances its due date — confirmed by querying the table directly
   4. Calling `getDueCardCount()` returns 0 when no cards are due and a positive integer after cards are seeded
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 09-01-PLAN.md — Install ts-fsrs, create FSRS migration, add TypeScript types
+- [ ] 09-02-PLAN.md — Extend markLessonComplete() card seeding, create fsrs.ts server actions
 
 ### Phase 10: FSRS Review UI
 **Goal**: Users can review due flashcards on a dedicated page and track their review queue on the dashboard
@@ -103,7 +105,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 | 7. Verification + Cleanup | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 6. Seed Content | v1.0 | 2/2 | Complete | 2026-03-02 |
 | 8. Clerk Auth Wiring | 1/1 | Complete   | 2026-03-03 | - |
-| 9. FSRS Data Layer | v2.0 | 0/? | Not started | - |
+| 9. FSRS Data Layer | v2.0 | 0/2 | Not started | - |
 | 10. FSRS Review UI | v2.0 | 0/? | Not started | - |
 | 11. Content Generation CLI | v2.0 | 0/? | Not started | - |
 | 12. Bulk Content Generation | v2.0 | 0/? | Not started | - |
