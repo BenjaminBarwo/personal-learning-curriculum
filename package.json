@@ -23,7 +23,8 @@
     "react-dom": "19.2.3",
     "react-player": "^3.4.0",
     "rehype-pretty-code": "^0.14.1",
-    "shiki": "^3.23.0"
+    "shiki": "^3.23.0",
+    "ts-fsrs": "^5.2.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
