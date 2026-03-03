@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Content & Retention
 status: unknown
-last_updated: "2026-03-03T02:17:40.860Z"
+last_updated: "2026-03-02T02:59:30.000Z"
 progress:
-  total_phases: 2
+  total_phases: 5
   completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
+  total_plans: 4
+  completed_plans: 4
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** v2.0 Content & Retention — Phase 9: FSRS Data Layer (plan 02 complete — phase complete)
+**Current focus:** v2.0 Content & Retention — Phase 10: FSRS Review UI (plan 01 complete — data layer and dashboard widget)
 
 ## Current Position
 
-Phase: 9 of 12 (FSRS Data Layer) — second phase of v2.0
-Plan: 02 complete (FSRS server actions: markLessonComplete seeding, submitFsrsReview, getDueCardCount)
+Phase: 10 of 12 (FSRS Review UI) — third phase of v2.0
+Plan: 01 complete (getDueCardsForReview, getNextDueCard server actions + DueCardForReview type + dashboard widget)
 Status: In progress
-Last activity: 2026-03-03 — 09-02 completed: progress.ts extended with card seeding, fsrs.ts created with two server actions
+Last activity: 2026-03-02 — 10-01 completed: getDueCardsForReview and getNextDueCard added to fsrs.ts; dashboard due-today widget wired
 
-Progress: [####░░░░░░] 40%
+Progress: [#####░░░░░] 50%
 
 ## Performance Metrics
 
@@ -44,6 +44,7 @@ Progress: [####░░░░░░] 40%
 | Phase 8 (08-01) | 1 | ~4 min | ~4 min |
 | Phase 9 (09-01) | 1 | ~2 min | ~2 min |
 | Phase 9 (09-02) | 1 | ~3 min | ~3 min |
+| Phase 10 (10-01) | 1 | ~2 min | ~2 min |
 
 *Updated after each plan completion*
 
@@ -67,6 +68,10 @@ Recent decisions for v2.0:
 - [09-02]: FsrsCard explicit cast (data as unknown as FsrsCard) required — Supabase select('*').single() returns {} in strict mode without it
 - [09-02]: state cast as unknown as FsrsCardState (not as number) — Supabase Insert type expects FsrsCardState union, not bare number
 - [09-02]: FSRS card seeding uses ignoreDuplicates: true — re-completing a lesson never resets existing card state
+- [10-01]: PostgREST FK expansion uses quiz_questions (table name) not question_id (FK column) — Supabase JS client convention; using column name silently returns nothing
+- [10-01]: getDueCardsForReview filters rows where quiz_questions is null — orphaned cards from soft-deleted questions would crash review UI
+- [10-01]: getNextDueCard uses .maybeSingle() not .single() — avoids PGRST116 error when no future cards exist
+- [10-01]: Dashboard widget uses {dueCount > 0 && (...)} conditional — FSRS-03 requires widget absent (not hidden) when zero cards due
 
 ### Pending Todos
 
@@ -79,6 +84,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-03
-Stopped at: 09-02-PLAN.md complete — progress.ts extended with FSRS card seeding, fsrs.ts created with submitFsrsReview and getDueCardCount
+Last session: 2026-03-02
+Stopped at: 10-01-PLAN.md complete — getDueCardsForReview and getNextDueCard added to fsrs.ts; DueCardForReview interface exported; dashboard due-today widget wired
 Resume file: None
