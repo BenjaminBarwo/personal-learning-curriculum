@@ -89,7 +89,7 @@ Recent decisions for v2.0:
 
 ### Pending Todos
 
-None.
+1. **Implement --refs flag for curated reference loading** (tooling) — CLI accepts flag but doesn't load files; needed for depth on systems thinking/technical courses
 
 ### Blockers/Concerns
 
