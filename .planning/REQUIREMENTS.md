@@ -9,9 +9,9 @@ Requirements for v2.0 Content & Retention milestone. Each maps to roadmap phases
 
 ### Authentication
 
-- [ ] **AUTH-01**: User can sign in via Clerk sign-in page at `/sign-in`
-- [ ] **AUTH-02**: Unauthenticated user is redirected to `/sign-in` from any protected route
-- [ ] **AUTH-03**: User is redirected to `/dashboard` after successful sign-in
+- [x] **AUTH-01**: User can sign in via Clerk sign-in page at `/sign-in`
+- [x] **AUTH-02**: Unauthenticated user is redirected to `/sign-in` from any protected route
+- [x] **AUTH-03**: User is redirected to `/dashboard` after successful sign-in
 
 ### FSRS Spaced Repetition
 
@@ -79,9 +79,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 8 | Pending |
-| AUTH-02 | Phase 8 | Pending |
-| AUTH-03 | Phase 8 | Pending |
+| AUTH-01 | Phase 8 | Complete |
+| AUTH-02 | Phase 8 | Complete |
+| AUTH-03 | Phase 8 | Complete |
 | FSRS-01 | Phase 9 | Pending |
 | FSRS-02 | Phase 9 | Pending |
 | FSRS-03 | Phase 10 | Pending |
