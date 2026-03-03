@@ -43,7 +43,8 @@ Full details: `milestones/v1.0-ROADMAP.md`
   2. The `/sign-in` page renders the Clerk `<SignIn />` component and is publicly accessible
   3. After signing in, the user lands on `/dashboard` — not the root `/`
   4. Progress writes recorded in Supabase show the real Clerk userId (not a hardcoded string), confirmed by inspecting the `progress` table
-**Plans**: TBD
+**Plans**: 1 plan
+- [ ] 08-01-PLAN.md — Middleware route protection, sign-in page, and userId replacement
 
 ### Phase 9: FSRS Data Layer
 **Goal**: FSRS card state lives in Supabase and review cards are automatically created when a lesson is completed
@@ -101,7 +102,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 | 5. Progress + Dashboard | v1.0 | 2/2 | Complete | 2026-03-01 |
 | 7. Verification + Cleanup | v1.0 | 1/1 | Complete | 2026-03-01 |
 | 6. Seed Content | v1.0 | 2/2 | Complete | 2026-03-02 |
-| 8. Clerk Auth Wiring | v2.0 | 0/? | Not started | - |
+| 8. Clerk Auth Wiring | v2.0 | 0/1 | Planned | - |
 | 9. FSRS Data Layer | v2.0 | 0/? | Not started | - |
 | 10. FSRS Review UI | v2.0 | 0/? | Not started | - |
 | 11. Content Generation CLI | v2.0 | 0/? | Not started | - |
