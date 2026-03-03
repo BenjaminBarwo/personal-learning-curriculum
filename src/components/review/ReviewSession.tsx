@@ -102,6 +102,14 @@ export function ReviewSession({ cards }: ReviewSessionProps) {
           <p className="text-lg text-text-primary">{currentCard.questionText}</p>
         </div>
 
+        {/* Context block — additional info referenced by the question */}
+        {currentCard.context && (
+          <div className="rounded-lg border border-border-subtle bg-surface-primary px-4 py-3">
+            <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">Context</p>
+            <p className="text-sm text-text-secondary italic">{currentCard.context}</p>
+          </div>
+        )}
+
         {/* Multiple choice options — shown as read-only list; correct answer highlighted when revealed */}
         {currentCard.options && (
           <div className="space-y-2">

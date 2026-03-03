@@ -13,6 +13,7 @@ export interface DueCardForReview {
   questionType: string
   correctAnswer: string | null
   acceptedAnswers: string[] | null
+  context: string | null
   explanation: string
   options: QuizOption[] | null
   // FSRS card state fields needed for f.repeat() computation on the client
@@ -171,7 +172,7 @@ export async function getDueCardsForReview(): Promise<DueCardForReview[]> {
 
   const { data, error } = await supabase
     .from('fsrs_cards')
-    .select('id, question_id, due, stability, difficulty, elapsed_days, scheduled_days, learning_steps, reps, lapses, state, last_review, quiz_questions(question_text, question_type, correct_answer, accepted_answers, explanation, options)')
+    .select('id, question_id, due, stability, difficulty, elapsed_days, scheduled_days, learning_steps, reps, lapses, state, last_review, quiz_questions(question_text, question_type, correct_answer, accepted_answers, context, explanation, options)')
     .eq('user_id', userId)
     .lte('due', new Date().toISOString())
     .order('due', { ascending: true })
@@ -189,6 +190,7 @@ export async function getDueCardsForReview(): Promise<DueCardForReview[]> {
         question_type: string
         correct_answer: string | null
         accepted_answers: string[] | null
+        context: string | null
         explanation: string
         options: unknown
       }
@@ -199,6 +201,7 @@ export async function getDueCardsForReview(): Promise<DueCardForReview[]> {
         questionType: q.question_type,
         correctAnswer: q.correct_answer,
         acceptedAnswers: q.accepted_answers,
+        context: q.context,
         explanation: q.explanation,
         options: q.options as unknown as QuizOption[] | null,
         due: row.due,
