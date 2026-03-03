@@ -28,7 +28,7 @@ Full details: `milestones/v1.0-ROADMAP.md`
 
 - [x] **Phase 8: Clerk Auth Wiring** — Real auth enforcement: sign-in page, middleware protection, remove hardcoded user (completed 2026-03-03)
 - [x] **Phase 9: FSRS Data Layer** — FSRS tables in Supabase, auto-seed cards from lesson completion, server actions (completed 2026-03-03)
-- [ ] **Phase 10: FSRS Review UI** — Review page with flashcard flow, rating buttons, dashboard due-today widget
+- [x] **Phase 10: FSRS Review UI** — Review page with flashcard flow, rating buttons, dashboard due-today widget (completed 2026-03-03)
 - [ ] **Phase 11: Content Generation CLI** — CLI pipeline: Claude API orchestrator + writer, MDX validation, idempotent seeding
 - [ ] **Phase 12: Bulk Content Generation** — All ~598 remaining lessons across Pillars 2-7 generated and seeded
 
@@ -108,6 +108,6 @@ Full details: `milestones/v1.0-ROADMAP.md`
 | 6. Seed Content | v1.0 | 2/2 | Complete | 2026-03-02 |
 | 8. Clerk Auth Wiring | 1/1 | Complete   | 2026-03-03 | - |
 | 9. FSRS Data Layer | 2/2 | Complete   | 2026-03-03 | - |
-| 10. FSRS Review UI | 1/2 | In Progress|  | - |
+| 10. FSRS Review UI | 2/2 | Complete   | 2026-03-03 | - |
 | 11. Content Generation CLI | v2.0 | 0/? | Not started | - |
 | 12. Bulk Content Generation | v2.0 | 0/? | Not started | - |

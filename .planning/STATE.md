@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Content & Retention
 status: unknown
-last_updated: "2026-03-02T02:59:30.000Z"
+last_updated: "2026-03-03T02:44:44.556Z"
 progress:
-  total_phases: 5
-  completed_phases: 2
-  total_plans: 4
-  completed_plans: 4
+  total_phases: 3
+  completed_phases: 3
+  total_plans: 5
+  completed_plans: 5
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** v2.0 Content & Retention — Phase 10: FSRS Review UI (plan 01 complete — data layer and dashboard widget)
+**Current focus:** v2.0 Content & Retention — Phase 10: FSRS Review UI (plan 02 complete — ReviewSession component and /review RSC page)
 
 ## Current Position
 
 Phase: 10 of 12 (FSRS Review UI) — third phase of v2.0
-Plan: 01 complete (getDueCardsForReview, getNextDueCard server actions + DueCardForReview type + dashboard widget)
+Plan: 02 complete (ReviewSession client component + /review RSC page + "All caught up" state)
 Status: In progress
-Last activity: 2026-03-02 — 10-01 completed: getDueCardsForReview and getNextDueCard added to fsrs.ts; dashboard due-today widget wired
+Last activity: 2026-03-03 — 10-02 completed: ReviewSession component with card-flip state machine; /review page with force-dynamic and all-caught-up state
 
-Progress: [#####░░░░░] 50%
+Progress: [######░░░░] 60%
 
 ## Performance Metrics
 
@@ -45,6 +45,7 @@ Progress: [#####░░░░░] 50%
 | Phase 9 (09-01) | 1 | ~2 min | ~2 min |
 | Phase 9 (09-02) | 1 | ~3 min | ~3 min |
 | Phase 10 (10-01) | 1 | ~2 min | ~2 min |
+| Phase 10 (10-02) | 2 | ~2 min | ~2 min |
 
 *Updated after each plan completion*
 
@@ -72,6 +73,9 @@ Recent decisions for v2.0:
 - [10-01]: getDueCardsForReview filters rows where quiz_questions is null — orphaned cards from soft-deleted questions would crash review UI
 - [10-01]: getNextDueCard uses .maybeSingle() not .single() — avoids PGRST116 error when no future cards exist
 - [10-01]: Dashboard widget uses {dueCount > 0 && (...)} conditional — FSRS-03 requires widget absent (not hidden) when zero cards due
+- [Phase 10]: f.repeat() used for client-side interval hint computation — returns all 4 outcomes in one call; server action uses f.next() for single-grade persistence
+- [Phase 10]: router.refresh() after last card rated — RSC re-render sees empty due queue and shows all-caught-up without tracking client state
+- [Phase 10]: force-dynamic on /review RSC page — due cards are per-user per-request; static generation would bake in stale counts
 
 ### Pending Todos
 
@@ -84,6 +88,6 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: 10-01-PLAN.md complete — getDueCardsForReview and getNextDueCard added to fsrs.ts; DueCardForReview interface exported; dashboard due-today widget wired
+Last session: 2026-03-03
+Stopped at: 10-02-PLAN.md complete — ReviewSession component and /review RSC page created; FSRS-04/05/06/07 requirements satisfied
 Resume file: None
