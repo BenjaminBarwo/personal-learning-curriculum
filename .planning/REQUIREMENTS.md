@@ -79,31 +79,31 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | — | Pending |
-| AUTH-02 | — | Pending |
-| AUTH-03 | — | Pending |
-| FSRS-01 | — | Pending |
-| FSRS-02 | — | Pending |
-| FSRS-03 | — | Pending |
-| FSRS-04 | — | Pending |
-| FSRS-05 | — | Pending |
-| FSRS-06 | — | Pending |
-| FSRS-07 | — | Pending |
-| GEN-01 | — | Pending |
-| GEN-02 | — | Pending |
-| GEN-03 | — | Pending |
-| GEN-04 | — | Pending |
-| GEN-05 | — | Pending |
-| GEN-06 | — | Pending |
-| GEN-07 | — | Pending |
-| GEN-08 | — | Pending |
-| CONT-01 | — | Pending |
+| AUTH-01 | Phase 8 | Pending |
+| AUTH-02 | Phase 8 | Pending |
+| AUTH-03 | Phase 8 | Pending |
+| FSRS-01 | Phase 9 | Pending |
+| FSRS-02 | Phase 9 | Pending |
+| FSRS-03 | Phase 10 | Pending |
+| FSRS-04 | Phase 10 | Pending |
+| FSRS-05 | Phase 10 | Pending |
+| FSRS-06 | Phase 10 | Pending |
+| FSRS-07 | Phase 10 | Pending |
+| GEN-01 | Phase 11 | Pending |
+| GEN-02 | Phase 11 | Pending |
+| GEN-03 | Phase 11 | Pending |
+| GEN-04 | Phase 11 | Pending |
+| GEN-05 | Phase 11 | Pending |
+| GEN-06 | Phase 11 | Pending |
+| GEN-07 | Phase 11 | Pending |
+| GEN-08 | Phase 11 | Pending |
+| CONT-01 | Phase 12 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 19 total
-- Mapped to phases: 0
-- Unmapped: 19
+- Mapped to phases: 19
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-02*
-*Last updated: 2026-03-02 after initial definition*
+*Last updated: 2026-03-02 after roadmap creation — all 19 requirements mapped*
