@@ -42,7 +42,14 @@ export interface QuizOption {
 }
 
 // ============================================================
-// Database type — matches all 11 tables + 6 views
+// FSRS numeric types (match ts-fsrs State and Rating enums)
+// ============================================================
+
+export type FsrsCardState = 0 | 1 | 2 | 3  // New, Learning, Review, Relearning
+export type FsrsRating = 1 | 2 | 3 | 4     // Again, Hard, Good, Easy
+
+// ============================================================
+// Database type — matches all 13 tables + 6 views
 // user_id is string (TEXT) everywhere — Clerk user IDs are not UUIDs
 // ============================================================
 
@@ -566,6 +573,131 @@ export interface Database {
           }
         ]
       }
+
+      fsrs_cards: {
+        Row: {
+          id: string
+          user_id: string
+          question_id: string
+          lesson_id: string
+          due: string
+          stability: number
+          difficulty: number
+          elapsed_days: number
+          scheduled_days: number
+          learning_steps: number
+          reps: number
+          lapses: number
+          state: FsrsCardState
+          last_review: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          question_id: string
+          lesson_id: string
+          due?: string
+          stability?: number
+          difficulty?: number
+          elapsed_days?: number
+          scheduled_days?: number
+          learning_steps?: number
+          reps?: number
+          lapses?: number
+          state?: FsrsCardState
+          last_review?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          question_id?: string
+          lesson_id?: string
+          due?: string
+          stability?: number
+          difficulty?: number
+          elapsed_days?: number
+          scheduled_days?: number
+          learning_steps?: number
+          reps?: number
+          lapses?: number
+          state?: FsrsCardState
+          last_review?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fsrs_cards_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fsrs_cards_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "lessons"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+
+      fsrs_review_logs: {
+        Row: {
+          id: string
+          user_id: string
+          card_id: string
+          question_id: string
+          rating: FsrsRating
+          state: FsrsCardState
+          due: string
+          stability: number
+          difficulty: number
+          elapsed_days: number
+          last_elapsed_days: number
+          scheduled_days: number
+          review: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          card_id: string
+          question_id: string
+          rating: FsrsRating
+          state: FsrsCardState
+          due: string
+          stability: number
+          difficulty: number
+          elapsed_days: number
+          last_elapsed_days: number
+          scheduled_days: number
+          review: string
+          created_at?: string
+        }
+        Update: never  // append-only — no updates allowed
+        Relationships: [
+          {
+            foreignKeyName: "fsrs_review_logs_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "fsrs_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fsrs_review_logs_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
 
     // ----------------------------------------------------------
@@ -761,3 +893,7 @@ export type ActiveCourse = Views<'active_courses'>
 export type ActiveLesson = Views<'active_lessons'>
 export type ActiveQuizQuestion = Views<'active_quiz_questions'>
 export type ActiveVocabulary = Views<'active_vocabulary'>
+
+// FSRS type aliases
+export type FsrsCard = Tables<'fsrs_cards'>
+export type FsrsReviewLog = Tables<'fsrs_review_logs'>
