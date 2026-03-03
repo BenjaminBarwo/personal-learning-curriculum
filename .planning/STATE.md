@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Content & Retention
 status: unknown
-last_updated: "2026-03-03T07:29:18Z"
+last_updated: "2026-03-03T07:38:07Z"
 progress:
   total_phases: 3
   completed_phases: 3
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 8
+  completed_plans: 8
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-02)
 
 **Core value:** Every lesson must be so frictionless to start and so engaging to continue that the learner never talks themselves out of opening one.
-**Current focus:** v2.0 Content & Retention — Phase 11: Content Generation CLI (plan 02 complete — four-stage pipeline: research, generate, review, validate)
+**Current focus:** v2.0 Content & Retention — Phase 11: Content Generation CLI COMPLETE (plan 03 complete — orchestrator loop, scope query, DB seeding, USAGE.md)
 
 ## Current Position
 
-Phase: 11 of 12 (Content Generation CLI) — fourth phase of v2.0
-Plan: 02 complete (prompt templates + four pipeline stages: research, generate, review, validate)
-Status: In progress
-Last activity: 2026-03-03 — 11-02 completed: generation pipeline with streaming, web_search research, two-pass review, MDX validation
+Phase: 11 of 12 (Content Generation CLI) — fourth phase of v2.0 — COMPLETE
+Plan: 03 complete (orchestrator loop, queryLessonsForScope, seedLesson, USAGE.md)
+Status: Phase 11 complete — ready for Phase 12
+Last activity: 2026-03-03 — 11-03 completed: full CLI end-to-end with scope query, idempotency, pipeline wiring, quiz UUID seeding, dry-run mode, generation logs
 
-Progress: [########░░] 75%
+Progress: [##########] 100%
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Progress: [########░░] 75%
 | Phase 10 (10-02) | 2 | ~2 min | ~2 min |
 | Phase 11 (11-01) | 1 | ~2 min | ~2 min |
 | Phase 11 (11-02) | 2 | ~6 min | ~6 min |
+| Phase 11 (11-03) | 2 | ~5 min | ~5 min |
 
 *Updated after each plan completion*
 
@@ -81,6 +82,10 @@ Recent decisions for v2.0:
 - [11-02]: Dynamic import for @mdx-js/mdx in validate-mdx.ts — static import fails with ERR_PACKAGE_PATH_NOT_EXPORTED due to estree-walker missing exports field
 - [11-02]: Quiz PLACEHOLDER_N pattern — generation embeds string placeholders; Plan 03 orchestrator replaces with real UUIDs after Supabase insert
 - [11-02]: Streaming only for generateLesson — review responses are shorter; streaming justified only for 8192-token generation to avoid idle timeout
+- [11-03]: Lazy Supabase Proxy — defers createClient() until first use; prevents crash when --help runs before dotenv loads env vars
+- [11-03]: Pillar scope by display_order integer, not slug — matches CLI flag design and pillar 1/2/3 naming convention
+- [11-03]: Supabase .update().select('id') for 0-row detection — update on missing row silently succeeds without .select(); added to detect missing lesson rows
+- [11-03]: Single validation retry before failing lesson — gives Claude one more chance; prevents batch crash from single malformed generation
 
 ### Pending Todos
 
@@ -94,5 +99,5 @@ None.
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: 11-02-PLAN.md complete — generation pipeline (research, generate, review, validate) and prompt templates created; GEN-02/GEN-08 requirements satisfied
+Stopped at: 11-03-PLAN.md complete — Phase 11 fully complete: orchestrator loop, scope query, DB seeding, USAGE.md; GEN-03/GEN-05/GEN-06 requirements satisfied
 Resume file: None
