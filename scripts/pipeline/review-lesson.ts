@@ -62,14 +62,15 @@ export async function reviewLesson(params: ReviewLessonParams): Promise<ReviewLe
     priorLessonSummaries,
   })
 
-  // Review responses are shorter than generation — no streaming needed
-  const response = await withBackoff(() =>
-    anthropic.messages.create({
+  // Use streaming to avoid idle connection timeout on long reviews
+  const response = await withBackoff(async () => {
+    const stream = anthropic.messages.stream({
       model,
       max_tokens: 8192,
       messages: [{ role: 'user', content: reviewPrompt }],
     })
-  )
+    return stream.finalMessage()
+  })
 
   const textBlocks: string[] = []
   for (const block of response.content) {
