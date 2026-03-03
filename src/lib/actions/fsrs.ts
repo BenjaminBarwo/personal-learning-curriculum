@@ -4,7 +4,29 @@ import { fsrs } from 'ts-fsrs'
 import type { Grade } from 'ts-fsrs'
 import { createAdminSupabaseClient } from '@/lib/supabase/server'
 import { auth } from '@clerk/nextjs/server'
-import type { FsrsCard, FsrsCardState, FsrsRating } from '@/types/database.types'
+import type { FsrsCard, FsrsCardState, FsrsRating, QuizOption } from '@/types/database.types'
+
+export interface DueCardForReview {
+  cardId: string
+  questionId: string
+  questionText: string
+  questionType: string
+  correctAnswer: string | null
+  acceptedAnswers: string[] | null
+  explanation: string
+  options: QuizOption[] | null
+  // FSRS card state fields needed for f.repeat() computation on the client
+  due: string
+  stability: number
+  difficulty: number
+  elapsed_days: number
+  scheduled_days: number
+  learning_steps: number
+  reps: number
+  lapses: number
+  state: FsrsCardState
+  last_review: string | null
+}
 
 const f = fsrs() // FSRS-5 default parameters — singleton, stateless
 
@@ -133,4 +155,92 @@ export async function getDueCardCount(): Promise<number> {
   }
 
   return count ?? 0
+}
+
+/**
+ * Get all cards due for review right now, joined with their quiz question content.
+ * Used by the review page (Phase 10) to populate the review session.
+ * Returns an empty array if no cards are due or if the user is not authenticated.
+ * Orphaned cards (soft-deleted questions) are filtered out.
+ */
+export async function getDueCardsForReview(): Promise<DueCardForReview[]> {
+  const { userId } = await auth()
+  if (!userId) return []
+
+  const supabase = createAdminSupabaseClient()
+
+  const { data, error } = await supabase
+    .from('fsrs_cards')
+    .select('id, question_id, due, stability, difficulty, elapsed_days, scheduled_days, learning_steps, reps, lapses, state, last_review, quiz_questions(question_text, question_type, correct_answer, accepted_answers, explanation, options)')
+    .eq('user_id', userId)
+    .lte('due', new Date().toISOString())
+    .order('due', { ascending: true })
+
+  if (error) {
+    console.error('Failed to get due cards for review:', error)
+    return []
+  }
+
+  return (data ?? [])
+    .filter((row) => row.quiz_questions !== null)
+    .map((row) => {
+      const q = row.quiz_questions as {
+        question_text: string
+        question_type: string
+        correct_answer: string | null
+        accepted_answers: string[] | null
+        explanation: string
+        options: unknown
+      }
+      return {
+        cardId: row.id,
+        questionId: row.question_id,
+        questionText: q.question_text,
+        questionType: q.question_type,
+        correctAnswer: q.correct_answer,
+        acceptedAnswers: q.accepted_answers,
+        explanation: q.explanation,
+        options: q.options as unknown as QuizOption[] | null,
+        due: row.due,
+        stability: row.stability,
+        difficulty: row.difficulty,
+        elapsed_days: row.elapsed_days,
+        scheduled_days: row.scheduled_days,
+        learning_steps: row.learning_steps,
+        reps: row.reps,
+        lapses: row.lapses,
+        state: row.state as FsrsCardState,
+        last_review: row.last_review,
+      } satisfies DueCardForReview
+    })
+}
+
+/**
+ * Get the soonest future due card for the current user.
+ * Used by the review page "all caught up" state to display when the next card is due.
+ * Returns null if no future cards exist or if the user is not authenticated.
+ */
+export async function getNextDueCard(): Promise<{ due: string } | null> {
+  const { userId } = await auth()
+  if (!userId) return null
+
+  const supabase = createAdminSupabaseClient()
+
+  const { data, error } = await supabase
+    .from('fsrs_cards')
+    .select('due')
+    .eq('user_id', userId)
+    .gt('due', new Date().toISOString())
+    .order('due', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) {
+    console.error('Failed to get next due card:', error)
+    return null
+  }
+
+  if (!data) return null
+
+  return { due: data.due }
 }
