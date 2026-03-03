@@ -4,6 +4,7 @@ import { getContinueLesson } from '@/lib/progress'
 import { auth } from '@clerk/nextjs/server'
 import { PillarCard } from '@/components/ui/PillarCard'
 import { BreadcrumbSetter } from '@/lib/breadcrumb-context'
+import { getDueCardCount } from '@/lib/actions/fsrs'
 import type { ActivePillar, ActiveSemester, ActiveCourse, ActiveLesson } from '@/types/database.types'
 
 export const dynamic = 'force-dynamic'
@@ -80,6 +81,8 @@ export default async function DashboardPage() {
     .eq('status', 'completed')
 
   const completedLessonIds = new Set((completedProgressData ?? []).map((r) => r.lesson_id))
+
+  const dueCount = await getDueCardCount()
 
   // Compute per-pillar progress
   const pillarProgressMap = new Map<string, { progress: number; lessonCount: number }>()
@@ -180,6 +183,32 @@ export default async function DashboardPage() {
             </div>
           </div>
         ) : null}
+
+        {dueCount > 0 && (
+          <Link
+            href="/review"
+            className="rounded-xl p-6 border border-border-subtle bg-surface-card flex items-center justify-between gap-4 hover:border-border-default hover:bg-surface-hover transition-all"
+          >
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-muted mb-1">
+                Spaced Repetition
+              </p>
+              <p className="text-xl font-semibold text-text-primary">
+                {dueCount} {dueCount === 1 ? 'card' : 'cards'} due today
+              </p>
+            </div>
+            <svg
+              className="w-5 h-5 text-text-muted shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </Link>
+        )}
 
         {/* Pillar grid */}
         {activePillars.length === 0 ? (
