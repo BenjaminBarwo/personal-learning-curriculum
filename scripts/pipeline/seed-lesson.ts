@@ -31,14 +31,49 @@ export async function seedLesson(params: SeedLessonParams): Promise<void> {
   }
 
   // Step 1: Delete existing quiz questions if --force
+  // Must delete quiz_attempts first (FK constraint) then quiz_questions
   if (force) {
-    const { error: deleteErr } = await supabase
+    // Get existing question IDs for this lesson
+    const { data: existingQs } = await supabase
       .from('quiz_questions')
-      .delete()
+      .select('id')
       .eq('lesson_id', lessonId)
 
-    if (deleteErr) {
-      throw new Error(`Failed to delete existing quiz questions: ${deleteErr.message}`)
+    if (existingQs && existingQs.length > 0) {
+      const questionIds = existingQs.map(q => q.id)
+
+      // Delete full FK chain: fsrs_review_logs → fsrs_cards → quiz_attempts → quiz_questions
+      const { data: fsrsCards } = await supabase
+        .from('fsrs_cards')
+        .select('id')
+        .in('question_id', questionIds)
+      const cardIds = (fsrsCards || []).map(c => c.id)
+
+      if (cardIds.length > 0) {
+        const { error: rlErr } = await supabase
+          .from('fsrs_review_logs')
+          .delete()
+          .in('card_id', cardIds)
+        if (rlErr) throw new Error(`Failed to delete FSRS review logs: ${rlErr.message}`)
+
+        const { error: fcErr } = await supabase
+          .from('fsrs_cards')
+          .delete()
+          .in('question_id', questionIds)
+        if (fcErr) throw new Error(`Failed to delete FSRS cards: ${fcErr.message}`)
+      }
+
+      const { error: attemptsErr } = await supabase
+        .from('quiz_attempts')
+        .delete()
+        .in('question_id', questionIds)
+      if (attemptsErr) throw new Error(`Failed to delete quiz attempts: ${attemptsErr.message}`)
+
+      const { error: deleteErr } = await supabase
+        .from('quiz_questions')
+        .delete()
+        .eq('lesson_id', lessonId)
+      if (deleteErr) throw new Error(`Failed to delete existing quiz questions: ${deleteErr.message}`)
     }
   }
 
@@ -51,6 +86,20 @@ export async function seedLesson(params: SeedLessonParams): Promise<void> {
       const correctOption = q.options.find((opt) => opt.isCorrect)
       const correctAnswer = correctOption?.text ?? null
 
+      // For recall questions, auto-populate accepted_answers with common variations
+      let acceptedAnswers: string[] | null = null
+      if (q.questionType === 'recall' && correctAnswer) {
+        const base = correctAnswer.trim()
+        const variations = new Set<string>([
+          base,
+          base.toLowerCase(),
+          // Singular/plural variants
+          base.endsWith('s') ? base.slice(0, -1) : `${base}s`,
+          base.toLowerCase().endsWith('s') ? base.toLowerCase().slice(0, -1) : `${base.toLowerCase()}s`,
+        ])
+        acceptedAnswers = [...variations]
+      }
+
       return {
         lesson_id: lessonId,
         question_type: q.questionType,
@@ -58,6 +107,7 @@ export async function seedLesson(params: SeedLessonParams): Promise<void> {
         context: q.context,
         options: q.options as unknown as import('../../src/types/database.types').Json,
         correct_answer: correctAnswer,
+        accepted_answers: acceptedAnswers,
         explanation: q.explanation,
         display_order: index + 1,
       }

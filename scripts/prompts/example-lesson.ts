@@ -69,6 +69,8 @@ export const EXAMPLE_LESSON_MDX = `
   The deeper lesson here touches systems thinking: training a neural network is a feedback control problem. The loss is the error signal, the weights are the state, the optimiser is the controller. Framing it this way reveals why stability (not oscillating), responsiveness (not too slow), and steady-state accuracy (generalisation) are the three competing objectives — exactly as they are in any feedback control system.
 </DeepDive>
 
+<Quiz questionId="PLACEHOLDER_UUID_4" />
+
 <Exercise estimated="20 min">
   ## Scenario
   You're a product manager at a fintech company. Your engineering team has built a model to flag potentially fraudulent transactions in real time. The model was trained on 12 months of historical transaction data with labels provided by the fraud investigation team. It's been in production for 3 months and the fraud team is complaining that it misses too many novel fraud patterns.
@@ -127,5 +129,17 @@ export const QUIZ_QUESTION_EXAMPLE: GeneratedQuizQuestion[] = [
       { id: 'd', text: 'The model has already achieved 100% accuracy on the training set', isCorrect: false },
     ],
     explanation: 'When loss plateaus during training, the gradient signal is typically near zero — a saddle point or flat region in the loss landscape. Solutions include using adaptive optimisers like Adam, adjusting the learning rate schedule, or checking for data issues.',
+  },
+  {
+    questionType: 'analysis',
+    questionText: 'Why do modern optimisers like Adam adapt the learning rate per parameter rather than using a single global learning rate?',
+    context: null,
+    options: [
+      { id: 'a', text: 'To reduce the total number of training steps required', isCorrect: false },
+      { id: 'b', text: 'Because parameters with consistently large gradients need smaller steps to avoid overshooting, while those with small gradients need larger steps to make progress', isCorrect: true },
+      { id: 'c', text: 'To ensure every parameter converges at exactly the same rate', isCorrect: false },
+      { id: 'd', text: 'Because a single learning rate would prevent the model from learning any patterns', isCorrect: false },
+    ],
+    explanation: 'Adaptive optimisers track gradient history per parameter. Parameters receiving large, consistent gradients get a smaller effective learning rate to prevent overshooting, while parameters with small gradients get a larger rate to escape flat regions — making training more robust across different architectures.',
   },
 ]

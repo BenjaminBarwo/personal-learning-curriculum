@@ -30,8 +30,15 @@ const OPTION_LABELS = ['A', 'B', 'C', 'D', 'E']
 function computeIsCorrect(question: ActiveQuizQuestion, selectedAnswer: string): boolean {
   if (question.question_type === 'recall') {
     const accepted = question.accepted_answers ?? []
-    return accepted.some(
-      (ans) => ans.toLowerCase().trim() === selectedAnswer.toLowerCase().trim()
+    if (accepted.length > 0) {
+      return accepted.some(
+        (ans) => ans.toLowerCase().trim() === selectedAnswer.toLowerCase().trim()
+      )
+    }
+    // Fallback: compare against correct_answer when accepted_answers is not populated
+    return (
+      question.correct_answer != null &&
+      question.correct_answer.toLowerCase().trim() === selectedAnswer.toLowerCase().trim()
     )
   }
   return selectedAnswer === question.correct_answer

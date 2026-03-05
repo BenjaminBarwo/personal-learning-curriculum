@@ -93,18 +93,23 @@ const COMPONENT_RULES = `
 const QUIZ_INSTRUCTIONS = `
 ## Quiz Instructions
 
-Generate 3-5 quiz questions as a SEPARATE JSON array in your response.
+Generate exactly 4 quiz questions as a SEPARATE JSON array in your response.
 
-In the MDX, reference each question with a self-closing tag:
+In the MDX, include exactly 4 self-closing Quiz tags — one per question:
   <Quiz questionId="PLACEHOLDER_1" />
   <Quiz questionId="PLACEHOLDER_2" />
-  ... and so on.
+  <Quiz questionId="PLACEHOLDER_3" />
+  <Quiz questionId="PLACEHOLDER_4" />
+
+**CRITICAL: The number of <Quiz> tags in the MDX MUST equal the number of questions in the JSON array. Every question needs a corresponding PLACEHOLDER tag, and every tag needs a corresponding question. If you generate 4 questions, include exactly 4 Quiz tags.**
 
 The orchestrator will replace PLACEHOLDER_N with real UUIDs after inserting questions into the database.
 
 **Question types:** 'recall' | 'application' | 'analysis' | 'comparison'
 **Options:** 4 choices per question, exactly one correct
 **Each question must have an explanation** that teaches why the correct answer is right
+
+**IMPORTANT for 'recall' questions:** Recall questions are rendered as free-text inputs (not multiple choice). The correct option's text becomes the expected answer the user must type. Keep the correct option text SHORT — a single word or brief phrase (e.g., "labels", "gradient descent", "backpropagation"). Do NOT use full sentences as option text for recall questions.
 
 Intersperse Quiz tags between ConceptBlocks — not all at the end.
 `.trim()
