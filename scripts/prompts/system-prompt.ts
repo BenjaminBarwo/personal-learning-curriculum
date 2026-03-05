@@ -32,7 +32,8 @@ Every lesson MDX must follow this skeleton in order:
 
 <Quiz questionId="PLACEHOLDER_UUID_N" />
 
-<Diagram chart="graph LR\\n  A[Input] --> B[Process] --> C[Output]" />
+<Diagram chart="graph LR
+  A[Input] --> B[Process] --> C[Output]" />
 
 <DeepDive title="Optional expansion">
   Collapsible section with deeper content, edge cases, or additional case studies.
@@ -77,7 +78,7 @@ const COMPONENT_RULES = `
 - <Hook> — opening narrative, 2-4 sentences
 - <ConceptBlock title="..."> — chunked theory section, 3-4 sentences per block
 - <Definition term="..."> — inline terminology (inside ConceptBlock only)
-- <Diagram chart="..."> — Mermaid diagram using the chart prop (inline syntax, escaped newlines with \\n)
+- <Diagram chart="..."> — Mermaid diagram using the chart prop (multi-line Mermaid syntax)
 - <Quiz questionId="PLACEHOLDER_N" /> — self-closing, references quiz_questions table row by ID
 - <DeepDive title="..."> — optional collapsible expansion, 3-4 paragraphs
 - <Exercise estimated="X min"> — application project with Scenario/Deliverable/Success Criteria sections

@@ -39,8 +39,11 @@ export function Diagram({ chart, caption }: DiagramProps) {
       })
 
       const id = idRef.current
+      // Normalise literal \n sequences (from AI-generated content) into real newlines
+        const normalizedChart = chart.replace(/\\n/g, '\n')
+
       try {
-        const result = await mermaid.render(id, chart)
+        const result = await mermaid.render(id, normalizedChart)
         if (!cancelled) {
           setSvg(result.svg)
           setIsLoading(false)
