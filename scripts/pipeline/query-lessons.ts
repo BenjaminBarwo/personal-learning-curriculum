@@ -50,7 +50,7 @@ async function queryByPillar(displayOrder: number): Promise<LessonTarget[]> {
   // 2. Resolve semesters under pillar
   const { data: semesters, error: semestersErr } = await supabase
     .from('semesters')
-    .select('id, name, slug, display_order')
+    .select('id, name, slug, pillar_id, display_order')
     .eq('pillar_id', pillar.id)
     .is('deleted_at', null)
 

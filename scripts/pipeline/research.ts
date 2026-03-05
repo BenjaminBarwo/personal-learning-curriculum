@@ -35,7 +35,7 @@ Focus on depth over breadth. A learner who understands these examples and connec
             type: 'web_search_20250305' as const,
             name: 'web_search',
             max_uses: 5,
-          } as unknown as Parameters<typeof anthropic.messages.create>[0]['tools'][0],
+          } as unknown as NonNullable<Parameters<typeof anthropic.messages.create>[0]['tools']>[0],
         ],
         messages: [{ role: 'user', content: userMessage }],
       })
