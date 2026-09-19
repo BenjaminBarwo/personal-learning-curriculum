@@ -2,10 +2,7 @@
 
 A self-directed, university-structured learning platform. Seven knowledge pillars, organised into semesters, courses and lessons, with MDX-authored content, inline quizzes, and progress tracking at every level of the hierarchy.
 
-Built solo and used daily — this is the platform I taught myself software engineering on.
-
-**Live:** https://learning-platform-three-omega.vercel.app
-
+Built solo and used daily — this is the platform I taught myself software engineering.
 ---
 
 ## Why it exists
